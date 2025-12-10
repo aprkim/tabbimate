@@ -1,0 +1,12 @@
+# Once you've created the repository on GitHub, run these commands:
+
+# Add the remote (replace YOUR_USERNAME with your GitHub username)
+git remote add origin https://github.com/YOUR_USERNAME/vibecoding-tabbimate.git
+
+# Rename branch to main (if needed)
+git branch -M main
+
+# Push your code
+git push -u origin main
+
+# After running these commands, your code will be on GitHub!
