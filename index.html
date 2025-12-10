@@ -82,7 +82,7 @@
         <div class="video-header">
             <div class="header-left">
                 <span class="timer" id="call-timer">Ends in 4:22</span>
-                <button class="header-btn">Help</button>
+                <button class="header-btn" id="help-btn">Help</button>
                 <button class="header-btn" id="leave-call">Leave</button>
             </div>
             <div class="header-center">
@@ -90,7 +90,12 @@
             </div>
             <div class="header-right">
                 <span class="partner-name" id="matched-user-name">Marty</span>
-                <span class="session-count">21 sessions ☆</span>
+                <span class="session-count" id="session-count">21 sessions</span>
+                <button class="favorite-btn" id="favorite-btn" title="Add to favorites">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                </button>
             </div>
         </div>
         
@@ -157,6 +162,33 @@
                 <span class="control-label">Share</span>
             </button>
         </div>
+        
+        <!-- Help Menu (hidden initially) -->
+        <div class="help-menu hidden" id="help-menu">
+            <button class="help-menu-item" id="session-guidelines">
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4"/>
+                    <path d="M12 8h.01"/>
+                </svg>
+                Review Session Guidelines
+            </button>
+            <button class="help-menu-item" id="block-user">
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                </svg>
+                Block <span id="block-username">User</span>
+            </button>
+            <button class="help-menu-item danger" id="report-user">
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                Report <span id="report-username">User</span>
+            </button>
+        </div>
     </div>
 
     <!-- AI Chat Box (movable, hidden initially) -->
@@ -212,12 +244,21 @@
                 </svg>
                 Messages
             </span>
-            <button class="close-channel-btn" id="close-channel">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"/>
-                    <line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-            </button>
+            <div class="chat-header-buttons">
+                <button class="popout-btn" id="popout-channel" title="Pop out to new window">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                </button>
+                <button class="close-channel-btn" id="close-channel">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
         </div>
         <div class="channel-messages" id="channel-messages">
             <div class="chat-message system-message">
@@ -232,6 +273,22 @@
                     <polygon points="22 2 15 22 11 13 2 9 22 2"/>
                 </svg>
             </button>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div class="modal-overlay hidden" id="modal-overlay">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Confirm</h3>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <p>Are you sure?</p>
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <button class="modal-btn modal-btn-secondary" id="modal-cancel">Cancel</button>
+                <button class="modal-btn modal-btn-primary" id="modal-confirm">OK</button>
+            </div>
         </div>
     </div>
 
