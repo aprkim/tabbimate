@@ -228,12 +228,25 @@ function formatLanguages(languagesObj) {
 
 // Initialize the page
 function init() {
-    renderDots();
-    setupLanguageButtons();
-    setupLevelButtons();
-    setupBackButton();
-    setupCardDrag();
-    setupLanguageRequest();
+    // Check if URL contains a session ID pattern: /session/1234567890
+    const urlPath = window.location.pathname;
+    const sessionIdMatch = urlPath.match(/\/session\/(\d{10})$/);
+    
+    if (sessionIdMatch) {
+        const sessionId = sessionIdMatch[1];
+        console.log('Loading session from URL:', sessionId);
+        // If there's a session ID in URL, the session is active
+        // The session data should already be in sessionData global
+        // This handles page refreshes during active sessions
+    } else {
+        // Normal home page initialization
+        renderDots();
+        setupLanguageButtons();
+        setupLevelButtons();
+        setupBackButton();
+        setupCardDrag();
+        setupLanguageRequest();
+    }
 }
 
 // Store dot and tooltip references for filtering
@@ -774,6 +787,11 @@ function startVideoChat(matchedUser, durationMinutes) {
     };
     
     console.log('Session started with ID:', sessionData.sessionId);
+    
+    // Update URL to include session ID with /session/ path
+    const baseUrl = window.location.pathname.replace(/\/$/, ''); // Remove trailing slash
+    const newUrl = `${window.location.origin}${baseUrl}/session/${sessionData.sessionId}`;
+    window.history.pushState({ sessionId: sessionData.sessionId }, '', newUrl);
     
     // Update UI with matched user info
     document.getElementById('matched-user-name').textContent = matchedUser.name;
@@ -1977,6 +1995,71 @@ function showConfetti() {
     }, 50);
 }
 
+// Generate sample phrases for session summary (will be replaced by real AI analysis)
+function generateSummaryPhrases(language, level) {
+    const phrasesDatabase = {
+        "English": {
+            "Basic": [
+                { phrase: "How was your weekend?", meaning: "A friendly way to start conversations and show interest in someone's life" },
+                { phrase: "I really enjoyed talking with you", meaning: "Express appreciation - builds rapport and ends conversations positively" },
+                { phrase: "Could you say that again, please?", meaning: "Politely ask for repetition when you don't understand" }
+            ],
+            "Intermediate": [
+                { phrase: "What do you think about...?", meaning: "Great conversation starter - invites opinions and deeper discussion" },
+                { phrase: "That's a good point", meaning: "Show you're listening and validate the other person's ideas" },
+                { phrase: "In my experience, I've found that...", meaning: "Share personal insights while keeping the conversation flowing" }
+            ],
+            "Professional / Talk with Native": [
+                { phrase: "Could you elaborate on that?", meaning: "Professional way to ask for more details in business contexts" },
+                { phrase: "Let me think about that for a moment", meaning: "Buy time to formulate your response thoughtfully" },
+                { phrase: "I appreciate your perspective on this", meaning: "Acknowledge different viewpoints professionally" }
+            ]
+        },
+        "Spanish": {
+            "Basic": [
+                { phrase: "¿Cómo estuvo tu fin de semana?", meaning: "How was your weekend? - A warm conversation starter" },
+                { phrase: "Me gustó mucho hablar contigo", meaning: "I really enjoyed talking with you - Show appreciation" },
+                { phrase: "¿Puedes repetir eso, por favor?", meaning: "Could you repeat that, please? - Ask politely for clarification" }
+            ],
+            "Intermediate": [
+                { phrase: "¿Qué opinas sobre...?", meaning: "What do you think about...? - Start meaningful discussions" },
+                { phrase: "Tienes razón", meaning: "You're right - Agree and validate their point" },
+                { phrase: "En mi experiencia, he notado que...", meaning: "In my experience, I've noticed that... - Share insights" }
+            ],
+            "Professional / Talk with Native": [
+                { phrase: "¿Podrías explicar eso con más detalle?", meaning: "Could you explain that in more detail? - Professional inquiry" },
+                { phrase: "Déjame pensar en eso un momento", meaning: "Let me think about that for a moment - Take time to respond" },
+                { phrase: "Aprecio tu perspectiva", meaning: "I appreciate your perspective - Professional acknowledgment" }
+            ]
+        },
+        "Korean": {
+            "Basic": [
+                { phrase: "주말 어떻게 보냈어요?", meaning: "How was your weekend? - Friendly conversation starter" },
+                { phrase: "이야기해서 정말 좋았어요", meaning: "It was really nice talking with you - Express enjoyment" },
+                { phrase: "다시 한번 말씀해 주시겠어요?", meaning: "Could you say that again? - Polite clarification request" }
+            ],
+            "Intermediate": [
+                { phrase: "그것에 대해 어떻게 생각하세요?", meaning: "What do you think about that? - Invite discussion" },
+                { phrase: "좋은 지적이네요", meaning: "That's a good point - Validate their opinion" },
+                { phrase: "제 경험으로는...", meaning: "In my experience... - Share personal insights" }
+            ],
+            "Professional / Talk with Native": [
+                { phrase: "좀 더 자세히 설명해 주시겠어요?", meaning: "Could you explain in more detail? - Professional request" },
+                { phrase: "잠깐 생각해 볼게요", meaning: "Let me think about that - Thoughtful pause" },
+                { phrase: "당신의 관점을 존중합니다", meaning: "I respect your perspective - Professional acknowledgment" }
+            ]
+        }
+    };
+
+    // Get phrases for language and level, with fallback
+    const languagePhrases = phrasesDatabase[language] || phrasesDatabase["English"];
+    return languagePhrases[level] || languagePhrases["Basic"] || [
+        { phrase: "Thank you for this conversation", meaning: "Express gratitude" },
+        { phrase: "I learned something new today", meaning: "Show appreciation for learning" },
+        { phrase: "Let's practice again soon", meaning: "Invite future conversations" }
+    ];
+}
+
 // Show session summary
 function showSessionSummary() {
     console.log('Showing session summary');
@@ -1997,7 +2080,6 @@ function showSessionSummary() {
     const actualDuration = Math.round((endTime - sessionData.startTime) / 60000); // minutes
     
     // Populate summary data
-    document.getElementById('summary-session-id').textContent = sessionData.sessionId || 'N/A';
     document.getElementById('summary-language').textContent = sessionData.language || 'N/A';
     document.getElementById('summary-level').textContent = sessionData.level || 'N/A';
     document.getElementById('summary-partner').textContent = sessionData.partner || 'N/A';
@@ -2007,6 +2089,22 @@ function showSessionSummary() {
         month: 'short',
         day: 'numeric'
     });
+    
+    // Generate and display phrases to memorize
+    const phrases = generateSummaryPhrases(sessionData.language, sessionData.level);
+    const phrasesList = document.getElementById('summary-phrases-list');
+    if (phrasesList) {
+        phrasesList.innerHTML = ''; // Clear existing
+        phrases.forEach(phraseObj => {
+            const phraseItem = document.createElement('div');
+            phraseItem.className = 'phrase-item';
+            phraseItem.innerHTML = `
+                <div class="phrase-text">"${phraseObj.phrase}"</div>
+                <div class="phrase-meaning">${phraseObj.meaning}</div>
+            `;
+            phrasesList.appendChild(phraseItem);
+        });
+    }
     
     // Show summary
     const summaryEl = document.getElementById('session-summary');
@@ -2020,8 +2118,9 @@ function setupSessionSummary() {
     const doneBtn = document.getElementById('summary-done');
     if (doneBtn) {
         doneBtn.addEventListener('click', () => {
-            // Reload page to return to home
-            window.location.reload();
+            // Return to main page (remove /session/sessionID from URL)
+            const basePath = window.location.pathname.replace(/\/session\/\d{10}$/, '');
+            window.location.href = `${window.location.origin}${basePath}`;
         });
     }
 }
