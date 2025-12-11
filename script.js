@@ -1570,7 +1570,7 @@ function startCallTimer(durationMinutes) {
             clearInterval(timerInterval);
             // Session ended naturally - start 3-minute cool-down
             showConfetti();
-            customAlert('🎉 Time\'s up! You have 3 more minutes to wrap up your conversation.', 'Main Session Complete').then(() => {
+            customAlert('Time\'s up! You have 3 more minutes to wrap up your conversation.', 'Main Session Complete').then(() => {
                 startCooldownTimer();
             });
         }
