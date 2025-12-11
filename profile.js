@@ -12,7 +12,7 @@
  *   }
  * 
  * Features:
- * - Profile photo upload with preview
+ * - Profile photo upload with cropping capability
  * - Location tracking (city, country)
  * - Language management with match toggle
  * - Interest tags (max 3)
@@ -22,6 +22,7 @@
 // Constants
 const STORAGE_KEY = 'tabbimate_profile_v1';
 const MAX_INTERESTS = 3;
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024; // 5MB
 
 // Profile state
 let profile = {
@@ -37,6 +38,10 @@ let profile = {
 // DOM Elements
 let elements = {};
 
+// Cropper instance
+let cropper = null;
+let tempImageFile = null;
+
 // Initialize the profile page
 function init() {
     // Cache DOM elements
@@ -44,7 +49,9 @@ function init() {
         photoUpload: document.getElementById('photo-upload'),
         avatarImage: document.getElementById('avatar-image'),
         avatarPlaceholder: document.getElementById('avatar-placeholder'),
+        editPhotoBtn: document.getElementById('edit-photo-btn'),
         removePhotoBtn: document.getElementById('remove-photo'),
+        uploadBtnText: document.getElementById('upload-btn-text'),
         cityInput: document.getElementById('city-input'),
         countryInput: document.getElementById('country-input'),
         languageInput: document.getElementById('language-input'),
@@ -54,7 +61,12 @@ function init() {
         addInterestBtn: document.getElementById('add-interest-btn'),
         interestsList: document.getElementById('interests-list'),
         interestCount: document.getElementById('interest-count'),
-        saveStatus: document.getElementById('save-status')
+        saveStatus: document.getElementById('save-status'),
+        cropModal: document.getElementById('crop-modal'),
+        cropImage: document.getElementById('crop-image'),
+        cropSaveBtn: document.getElementById('crop-save-btn'),
+        cropCancelBtn: document.getElementById('crop-cancel-btn'),
+        cropCloseBtn: document.getElementById('crop-close-btn')
     };
 
     // Load profile from localStorage
@@ -67,9 +79,6 @@ function init() {
     renderLanguages();
     renderInterests();
     updateInterestCount();
-
-    // Setup card dragging (reuse from main script)
-    setupCardDragging();
 
     // Setup map dots animation
     setupMapDots();
@@ -91,7 +100,9 @@ function loadProfile() {
         elements.avatarImage.src = profile.photoUrl;
         elements.avatarImage.classList.remove('hidden');
         elements.avatarPlaceholder.classList.add('hidden');
+        elements.editPhotoBtn.classList.remove('hidden');
         elements.removePhotoBtn.classList.remove('hidden');
+        elements.uploadBtnText.textContent = 'Change Photo';
     }
 
     elements.cityInput.value = profile.location.city || '';
@@ -105,7 +116,7 @@ function saveProfile() {
         showSaveStatus();
     } catch (error) {
         console.error('Error saving profile:', error);
-        alert('Failed to save profile. Please try again.');
+        customAlert('Failed to save profile. Please try again.');
     }
 }
 
@@ -120,8 +131,14 @@ function showSaveStatus() {
 // Setup all event listeners
 function setupEventListeners() {
     // Photo upload
-    elements.photoUpload.addEventListener('change', handlePhotoUpload);
+    elements.photoUpload.addEventListener('change', handlePhotoSelect);
+    elements.editPhotoBtn.addEventListener('click', () => elements.photoUpload.click());
     elements.removePhotoBtn.addEventListener('click', removePhoto);
+
+    // Crop modal
+    elements.cropSaveBtn.addEventListener('click', saveCroppedImage);
+    elements.cropCancelBtn.addEventListener('click', closeCropModal);
+    elements.cropCloseBtn.addEventListener('click', closeCropModal);
 
     // Location inputs
     elements.cityInput.addEventListener('input', handleLocationChange);
@@ -146,37 +163,108 @@ function setupEventListeners() {
     });
 }
 
-// Handle photo upload
-function handlePhotoUpload(e) {
+// Handle photo file selection
+function handlePhotoSelect(e) {
     const file = e.target.files[0];
     if (!file) return;
 
     // Check file type
     if (!file.type.startsWith('image/')) {
-        alert('Please select an image file.');
+        customAlert('Please select an image file.');
         return;
     }
 
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-        alert('Image size should be less than 5MB.');
+    // Check file size
+    if (file.size > MAX_PHOTO_SIZE) {
+        customAlert('Image size should be less than 5MB.');
         return;
     }
 
-    // Read file as Data URL
+    tempImageFile = file;
+
+    // Read file and show cropper
     const reader = new FileReader();
     reader.onload = (event) => {
-        profile.photoUrl = event.target.result;
-        elements.avatarImage.src = profile.photoUrl;
-        elements.avatarImage.classList.remove('hidden');
-        elements.avatarPlaceholder.classList.add('hidden');
-        elements.removePhotoBtn.classList.remove('hidden');
-        saveProfile();
+        elements.cropImage.src = event.target.result;
+        showCropModal();
     };
     reader.onerror = () => {
-        alert('Failed to read image file. Please try again.');
+        customAlert('Failed to read image file. Please try again.');
     };
     reader.readAsDataURL(file);
+}
+
+// Show crop modal
+function showCropModal() {
+    elements.cropModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+
+    // Initialize cropper
+    if (cropper) {
+        cropper.destroy();
+    }
+
+    cropper = new Cropper(elements.cropImage, {
+        aspectRatio: 1,
+        viewMode: 2,
+        dragMode: 'move',
+        autoCropArea: 1,
+        restore: false,
+        guides: true,
+        center: true,
+        highlight: false,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        toggleDragModeOnDblclick: false,
+    });
+}
+
+// Close crop modal
+function closeCropModal() {
+    elements.cropModal.classList.add('hidden');
+    document.body.style.overflow = '';
+    
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+
+    // Reset file input
+    elements.photoUpload.value = '';
+    tempImageFile = null;
+}
+
+// Save cropped image
+function saveCroppedImage() {
+    if (!cropper) return;
+
+    // Get cropped canvas
+    const canvas = cropper.getCroppedCanvas({
+        width: 400,
+        height: 400,
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high',
+    });
+
+    // Convert to Data URL
+    canvas.toBlob((blob) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            profile.photoUrl = e.target.result;
+            
+            // Update UI
+            elements.avatarImage.src = profile.photoUrl;
+            elements.avatarImage.classList.remove('hidden');
+            elements.avatarPlaceholder.classList.add('hidden');
+            elements.editPhotoBtn.classList.remove('hidden');
+            elements.removePhotoBtn.classList.remove('hidden');
+            elements.uploadBtnText.textContent = 'Change Photo';
+            
+            saveProfile();
+            closeCropModal();
+        };
+        reader.readAsDataURL(blob);
+    }, 'image/jpeg', 0.9);
 }
 
 // Remove photo
@@ -185,7 +273,9 @@ function removePhoto() {
     elements.avatarImage.src = '';
     elements.avatarImage.classList.add('hidden');
     elements.avatarPlaceholder.classList.remove('hidden');
+    elements.editPhotoBtn.classList.add('hidden');
     elements.removePhotoBtn.classList.add('hidden');
+    elements.uploadBtnText.textContent = 'Upload Photo';
     elements.photoUpload.value = '';
     saveProfile();
 }
@@ -211,7 +301,7 @@ function addLanguage() {
     );
 
     if (exists) {
-        alert('This language is already in your list.');
+        customAlert('This language is already in your list.');
         return;
     }
 
@@ -284,7 +374,7 @@ function addInterest() {
 
     // Check max limit
     if (profile.interests.length >= MAX_INTERESTS) {
-        alert(`You can only add up to ${MAX_INTERESTS} interests.`);
+        customAlert(`You can only add up to ${MAX_INTERESTS} interests.`);
         return;
     }
 
@@ -294,7 +384,7 @@ function addInterest() {
     );
 
     if (exists) {
-        alert('This interest is already in your list.');
+        customAlert('This interest is already in your list.');
         return;
     }
 
@@ -359,72 +449,10 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Setup card dragging (simplified version from main script)
-function setupCardDragging() {
-    const card = document.getElementById('profile-card');
-    const container = document.querySelector('.center-container');
-    let isDragging = false;
-    let currentX = 0;
-    let currentY = 0;
-    let initialX = 0;
-    let initialY = 0;
-    let xOffset = 0;
-    let yOffset = 0;
-
-    function dragStart(e) {
-        if (e.target.closest('button') || e.target.closest('a') || e.target.closest('input') || e.target.closest('label')) {
-            return;
-        }
-
-        const style = window.getComputedStyle(card);
-        const matrix = new DOMMatrixReadOnly(style.transform);
-        xOffset = matrix.m41;
-        yOffset = matrix.m42;
-
-        if (e.type === 'touchstart') {
-            initialX = e.touches[0].clientX - xOffset;
-            initialY = e.touches[0].clientY - yOffset;
-        } else {
-            initialX = e.clientX - xOffset;
-            initialY = e.clientY - yOffset;
-        }
-
-        isDragging = true;
-        card.classList.add('dragging');
-        container.style.justifyContent = 'flex-start';
-        container.style.alignItems = 'flex-start';
-    }
-
-    function drag(e) {
-        if (!isDragging) return;
-
-        e.preventDefault();
-
-        if (e.type === 'touchmove') {
-            currentX = e.touches[0].clientX - initialX;
-            currentY = e.touches[0].clientY - initialY;
-        } else {
-            currentX = e.clientX - initialX;
-            currentY = e.clientY - initialY;
-        }
-
-        xOffset = currentX;
-        yOffset = currentY;
-
-        card.style.transform = `translate(${currentX}px, ${currentY}px)`;
-    }
-
-    function dragEnd() {
-        isDragging = false;
-        card.classList.remove('dragging');
-    }
-
-    card.addEventListener('mousedown', dragStart);
-    card.addEventListener('touchstart', dragStart);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('touchmove', drag, { passive: false });
-    document.addEventListener('mouseup', dragEnd);
-    document.addEventListener('touchend', dragEnd);
+// Custom alert (use TabbiMate modal if available)
+function customAlert(message) {
+    // For now, use native alert. Can be replaced with custom modal later
+    alert(message);
 }
 
 // Setup map dots (simplified - just show static dots)
@@ -437,7 +465,10 @@ function setupMapDots() {
         { top: "40%", left: "22%" },
         { top: "65%", left: "30%" },
         { top: "42%", left: "76%" },
-        { top: "50%", left: "26%" }
+        { top: "50%", left: "26%" },
+        { top: "38%", left: "82%" },
+        { top: "47%", left: "70%" },
+        { top: "60%", left: "85%" }
     ];
 
     dotPositions.forEach(pos => {
@@ -455,4 +486,3 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
-
