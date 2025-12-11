@@ -1642,13 +1642,12 @@ function setupCardDrag() {
     const container = document.querySelector('.center-container');
     
     let isDragging = false;
-    let currentX;
-    let currentY;
+    let currentX = 0;
+    let currentY = 0;
     let initialX;
     let initialY;
     let xOffset = 0;
     let yOffset = 0;
-    let isFirstDrag = true;
     
     card.addEventListener('mousedown', dragStart);
     document.addEventListener('mousemove', drag);
@@ -1665,14 +1664,6 @@ function setupCardDrag() {
             return;
         }
         
-        // On first drag, set initial position to card's current center position
-        if (isFirstDrag) {
-            const rect = card.getBoundingClientRect();
-            xOffset = rect.left + (rect.width / 2) - (window.innerWidth / 2);
-            yOffset = rect.top + (rect.height / 2) - (window.innerHeight / 2);
-            isFirstDrag = false;
-        }
-        
         if (e.type === 'touchstart') {
             initialX = e.touches[0].clientX - xOffset;
             initialY = e.touches[0].clientY - yOffset;
@@ -1684,9 +1675,15 @@ function setupCardDrag() {
         isDragging = true;
         card.classList.add('dragging');
         
-        // Remove centering
-        container.style.justifyContent = 'flex-start';
-        container.style.alignItems = 'flex-start';
+        // Remove centering on first drag
+        if (xOffset === 0 && yOffset === 0) {
+            container.style.justifyContent = 'flex-start';
+            container.style.alignItems = 'flex-start';
+            card.style.position = 'absolute';
+            card.style.top = '50%';
+            card.style.left = '50%';
+            card.style.transform = 'translate(-50%, -50%)';
+        }
     }
     
     function drag(e) {
