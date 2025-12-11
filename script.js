@@ -1,7 +1,9 @@
 // State management
 const state = {
     selectedLanguage: null,
-    currentView: 'language-selection'
+    currentView: 'language-selection',
+    sessionDuration: null,
+    matchedUser: null
 };
 
 // User database - structured format for easy expansion
@@ -11,7 +13,7 @@ const users = [
         location: { top: "32%", left: "18%" }, // Berkeley
         languages: {
             english: "Professional",
-            spanish: "Beginner",
+            spanish: "Basic",
             korean: "Native"
         },
         practiceLevel: "Professional",
@@ -23,7 +25,7 @@ const users = [
         languages: {
             english: "Native",
             spanish: "Intermediate",
-            korean: "Beginner"
+            korean: "Basic"
         },
         practiceLevel: "Native",
         interests: ["Music", "Running", "Tech"]
@@ -106,6 +108,114 @@ const users = [
         },
         practiceLevel: "Professional",
         interests: ["Art", "Wine", "History"]
+    },
+    {
+        name: "Yuki",
+        location: { top: "36%", left: "84%" }, // Japan
+        languages: {
+            japanese: "Native",
+            english: "Intermediate",
+            korean: "Basic"
+        },
+        practiceLevel: "Intermediate",
+        interests: ["Manga", "Fashion", "K-pop"]
+    },
+    {
+        name: "Diego",
+        location: { top: "58%", left: "28%" }, // Argentina
+        languages: {
+            spanish: "Native",
+            english: "Professional",
+            portuguese: "Intermediate"
+        },
+        practiceLevel: "Professional",
+        interests: ["Football", "Tango", "BBQ"]
+    },
+    {
+        name: "Amelie",
+        location: { top: "48%", left: "50%" }, // France
+        languages: {
+            french: "Native",
+            english: "Intermediate",
+            spanish: "Basic"
+        },
+        practiceLevel: "Intermediate",
+        interests: ["Cinema", "Fashion", "Cheese"]
+    },
+    {
+        name: "Chen",
+        location: { top: "30%", left: "74%" }, // China
+        languages: {
+            chinese: "Native",
+            english: "Professional"
+        },
+        practiceLevel: "Professional",
+        interests: ["Business", "Tea", "Calligraphy"]
+    },
+    {
+        name: "Isabella",
+        location: { top: "70%", left: "22%" }, // Brazil
+        languages: {
+            portuguese: "Native",
+            spanish: "Professional",
+            english: "Intermediate"
+        },
+        practiceLevel: "Professional",
+        interests: ["Samba", "Beach", "Coffee"]
+    },
+    {
+        name: "Ahmed",
+        location: { top: "26%", left: "56%" }, // Egypt
+        languages: {
+            arabic: "Native",
+            english: "Professional",
+            french: "Basic"
+        },
+        practiceLevel: "Professional",
+        interests: ["History", "Architecture", "Travel"]
+    },
+    {
+        name: "Nina",
+        location: { top: "60%", left: "54%" }, // South Africa
+        languages: {
+            english: "Native",
+            afrikaans: "Native"
+        },
+        practiceLevel: "Native",
+        interests: ["Wildlife", "Photography", "Hiking"]
+    },
+    {
+        name: "Paolo",
+        location: { top: "44%", left: "52%" }, // Italy
+        languages: {
+            italian: "Native",
+            english: "Intermediate",
+            spanish: "Intermediate"
+        },
+        practiceLevel: "Intermediate",
+        interests: ["Cooking", "Opera", "Design"]
+    },
+    {
+        name: "Fatima",
+        location: { top: "34%", left: "66%" }, // Pakistan
+        languages: {
+            urdu: "Native",
+            english: "Professional",
+            arabic: "Basic"
+        },
+        practiceLevel: "Professional",
+        interests: ["Poetry", "Education", "Medicine"]
+    },
+    {
+        name: "Lars",
+        location: { top: "60%", left: "52%" }, // Sweden
+        languages: {
+            swedish: "Native",
+            english: "Native",
+            spanish: "Basic"
+        },
+        practiceLevel: "Native",
+        interests: ["Gaming", "Design", "Sustainability"]
     }
 ];
 
@@ -256,6 +366,9 @@ function selectLanguage(language) {
     // Update the selected language text
     document.getElementById('selected-language').textContent = language;
     
+    // Update which level buttons are available
+    updateLevelButtonsAvailability();
+    
     // Filter dots based on selected language
     filterDotsByLanguage(language);
     
@@ -284,15 +397,79 @@ function setupLevelButtons() {
     
     levelButtons.forEach(btn => {
         btn.addEventListener('click', () => {
+            // Check if button is disabled (check both attribute and class)
+            if (btn.disabled || btn.classList.contains('disabled')) {
+                console.log('Button is disabled, ignoring click');
+                return;
+            }
+            
             const level = btn.getAttribute('data-level');
             const duration = parseInt(btn.getAttribute('data-duration'));
+            console.log('Level button clicked:', level, 'Duration:', duration);
             selectLevel(level, duration);
         });
     });
 }
 
+// Update level buttons based on current user's ability in selected language
+function updateLevelButtonsAvailability() {
+    const currentUser = users.find(u => u.name === 'April');
+    
+    // If no user is logged in (guest mode), keep all buttons active
+    if (!currentUser) {
+        console.log('Guest mode: All level buttons active');
+        const levelButtons = document.querySelectorAll('.level-btn');
+        levelButtons.forEach(btn => {
+            btn.disabled = false;
+            btn.classList.remove('disabled');
+        });
+        return;
+    }
+    
+    if (!state.selectedLanguage) return;
+    
+    const langKey = state.selectedLanguage.toLowerCase();
+    const myLevel = currentUser.languages[langKey];
+    
+    // If user doesn't have this language in their profile, keep all buttons active
+    // (they might be learning it for the first time)
+    if (!myLevel) {
+        console.log(`User hasn't set level for ${state.selectedLanguage} yet - all buttons active`);
+        const levelButtons = document.querySelectorAll('.level-btn');
+        levelButtons.forEach(btn => {
+            btn.disabled = false;
+            btn.classList.remove('disabled');
+        });
+        return;
+    }
+    
+    console.log(`Updating level buttons for ${state.selectedLanguage}, my level: ${myLevel}`);
+    
+    const levelButtons = document.querySelectorAll('.level-btn');
+    
+    levelButtons.forEach(btn => {
+        const buttonLevel = btn.getAttribute('data-level');
+        
+        // "Native" button is always available (to talk with native speakers)
+        if (buttonLevel === 'Native') {
+            btn.disabled = false;
+            btn.classList.remove('disabled');
+            return;
+        }
+        
+        // For other levels, only enable if it matches user's level
+        if (buttonLevel === myLevel) {
+            btn.disabled = false;
+            btn.classList.remove('disabled');
+        } else {
+            btn.disabled = true;
+            btn.classList.add('disabled');
+        }
+    });
+}
+
 // Handle level selection
-function selectLevel(level, durationMinutes) {
+async function selectLevel(level, durationMinutes) {
     const selection = {
         language: state.selectedLanguage,
         level: level,
@@ -306,16 +483,24 @@ function selectLevel(level, durationMinutes) {
     
     if (matchedUser) {
         console.log('Matched with:', matchedUser.name);
-        startVideoChat(matchedUser);
+        startVideoChat(matchedUser, durationMinutes);
     } else {
         console.log('No match found');
-        alert('No available users for this level. Please try another!');
+        await customAlert('No available users for this level. Please try another!', 'No Match Found');
     }
 }
 
 // Find a matching user
 function findMatch(selectedLanguage, level) {
     const langKey = selectedLanguage.toLowerCase();
+    const currentUser = users.find(u => u.name === 'April');
+    
+    if (!currentUser) return null;
+    
+    // Get current user's level in the selected language
+    const myLevel = currentUser.languages[langKey];
+    
+    console.log(`Looking for match: Language=${selectedLanguage}, My Level=${myLevel}, Seeking=${level}`);
     
     // Filter users who speak the selected language
     const availableUsers = users.filter(user => {
@@ -323,34 +508,101 @@ function findMatch(selectedLanguage, level) {
         if (user.name === 'April') return false;
         
         // Check if they speak the language
-        return user.languages.hasOwnProperty(langKey);
+        if (!user.languages.hasOwnProperty(langKey)) return false;
+        
+        const theirLevel = user.languages[langKey];
+        
+        // Case 1: Talk with Native - match with native speakers only
+        if (level === 'Native') {
+            return theirLevel === 'Native';
+        }
+        
+        // Case 2: Same level matching (Basic, Intermediate, Professional)
+        // Match users with the exact same level
+        return theirLevel === myLevel;
     });
     
-    console.log('Available users for matching:', availableUsers.map(u => u.name));
+    console.log('Available users for matching:', availableUsers.map(u => ({
+        name: u.name,
+        level: u.languages[langKey]
+    })));
     
-    if (availableUsers.length === 0) return null;
-    
-    // For "Talk with Native" level, prioritize native speakers
-    if (level === 'Native') {
-        const nativeUsers = availableUsers.filter(user => 
-            user.languages[langKey] === 'Native'
-        );
-        if (nativeUsers.length > 0) {
-            return nativeUsers[Math.floor(Math.random() * nativeUsers.length)];
-        }
+    if (availableUsers.length === 0) {
+        console.log('No match found with matching level');
+        return null;
     }
     
-    // Otherwise return a random match
+    // Return a random match from available users
     return availableUsers[Math.floor(Math.random() * availableUsers.length)];
 }
 
+// Update session count and favorite button
+function updateSessionInfo(username) {
+    const favoriteData = FavoritesManager.getFavoriteData(username);
+    const sessionCountEl = document.getElementById('session-count');
+    const favoriteBtn = document.getElementById('favorite-btn');
+    
+    if (!sessionCountEl || !favoriteBtn) return;
+    
+    const tooltip = favoriteBtn.querySelector('.favorite-tooltip');
+    
+    if (favoriteData) {
+        sessionCountEl.textContent = `${favoriteData.sessionCount} sessions`;
+        favoriteBtn.classList.add('favorited');
+        if (tooltip) tooltip.textContent = 'Remove from Favorites';
+    } else {
+        sessionCountEl.textContent = '1 session';
+        favoriteBtn.classList.remove('favorited');
+        if (tooltip) tooltip.textContent = 'Add to Favorites';
+    }
+}
+
+// Setup favorite button
+function setupFavoriteButton() {
+    const favoriteBtn = document.getElementById('favorite-btn');
+    if (!favoriteBtn) return;
+    
+    const tooltip = favoriteBtn.querySelector('.favorite-tooltip');
+    
+    favoriteBtn.addEventListener('click', async () => {
+        if (!currentMatchedUser) return;
+        
+        const username = currentMatchedUser.name;
+        const isFavorited = FavoritesManager.toggleFavorite(username);
+        
+        if (isFavorited) {
+            favoriteBtn.classList.add('favorited');
+            if (tooltip) tooltip.textContent = 'Remove from Favorites';
+            await customAlert(`${username} has been added to your favorites! You'll be more likely to match with them in the future.`, 'Added to Favorites');
+        } else {
+            favoriteBtn.classList.remove('favorited');
+            if (tooltip) tooltip.textContent = 'Add to Favorites';
+            await customAlert(`${username} has been removed from your favorites.`, 'Removed from Favorites');
+        }
+        
+        // Update session count
+        updateSessionInfo(username);
+    });
+}
+
 // Start video chat with matched user
-function startVideoChat(matchedUser) {
-    console.log('Starting video chat with:', matchedUser.name);
+function startVideoChat(matchedUser, durationMinutes) {
+    console.log('Starting video chat with:', matchedUser.name, 'Duration:', durationMinutes, 'minutes');
+    
+    // Store matched user and duration
+    currentMatchedUser = matchedUser;
+    state.sessionDuration = durationMinutes;
     
     // Update UI with matched user info
     document.getElementById('matched-user-name').textContent = matchedUser.name;
     document.getElementById('remote-name').textContent = matchedUser.name.toLowerCase();
+    
+    // Update Help menu with user's name
+    document.getElementById('block-username').textContent = matchedUser.name;
+    document.getElementById('report-username').textContent = matchedUser.name;
+    
+    // Update session count and favorite status
+    updateSessionInfo(matchedUser.name);
     
     // Hide map and card, show video chat
     document.querySelector('.map-container').style.display = 'none';
@@ -359,7 +611,7 @@ function startVideoChat(matchedUser) {
     
     // Setup end call button and timer
     setupVideoCallControls();
-    startCallTimer();
+    startCallTimer(durationMinutes);
 }
 
 // Setup back button
@@ -480,9 +732,9 @@ function setupToggleButtons() {
     });
     
     // Share screen
-    document.getElementById('toggle-share').addEventListener('click', function() {
+    document.getElementById('toggle-share').addEventListener('click', async function() {
         console.log('Share screen clicked');
-        alert('Screen sharing functionality will be added here!');
+        await customAlert('Screen sharing functionality will be added here!', 'Screen Share');
     });
 }
 
@@ -605,13 +857,14 @@ function makeDraggable(element, handle) {
 
 // Start call timer
 let timerInterval;
-function startCallTimer() {
+function startCallTimer(durationMinutes) {
     // Clear any existing timer
     if (timerInterval) {
         clearInterval(timerInterval);
     }
     
-    let seconds = 262; // 4:22 in seconds
+    // Convert minutes to seconds
+    let seconds = durationMinutes * 60;
     
     const updateTimer = () => {
         const minutes = Math.floor(seconds / 60);
@@ -622,7 +875,10 @@ function startCallTimer() {
         
         if (seconds < 0) {
             clearInterval(timerInterval);
-            endVideoChat();
+            // Session ended naturally
+            customAlert('Session time is up!', 'Time\'s Up').then(() => {
+                endVideoChat();
+            });
         }
     };
     
@@ -742,6 +998,139 @@ function setupCardDrag() {
 }
 
 // Language Request Management
+// Favorites system - stores user favorites in localStorage
+const FavoritesManager = {
+    getFavorites() {
+        const favorites = localStorage.getItem('tabbimate_favorites');
+        return favorites ? JSON.parse(favorites) : {};
+    },
+    
+    isFavorited(username) {
+        const favorites = this.getFavorites();
+        return !!favorites[username];
+    },
+    
+    addFavorite(username) {
+        const favorites = this.getFavorites();
+        favorites[username] = {
+            addedDate: new Date().toISOString(),
+            sessionCount: favorites[username] ? favorites[username].sessionCount + 1 : 1
+        };
+        localStorage.setItem('tabbimate_favorites', JSON.stringify(favorites));
+        return favorites[username];
+    },
+    
+    removeFavorite(username) {
+        const favorites = this.getFavorites();
+        delete favorites[username];
+        localStorage.setItem('tabbimate_favorites', JSON.stringify(favorites));
+    },
+    
+    getFavoriteData(username) {
+        const favorites = this.getFavorites();
+        return favorites[username] || null;
+    },
+    
+    toggleFavorite(username) {
+        if (this.isFavorited(username)) {
+            this.removeFavorite(username);
+            return false;
+        } else {
+            this.addFavorite(username);
+            return true;
+        }
+    }
+};
+
+// Custom Modal Functions
+function showModal(title, message, buttons = []) {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('modal-overlay');
+        const titleEl = document.getElementById('modal-title');
+        const bodyEl = document.getElementById('modal-body');
+        const footerEl = document.getElementById('modal-footer');
+        
+        titleEl.textContent = title;
+        bodyEl.innerHTML = typeof message === 'string' ? `<p>${message}</p>` : '';
+        if (typeof message === 'object' && message.html) {
+            bodyEl.innerHTML = message.html;
+        }
+        
+        // Clear and setup buttons
+        footerEl.innerHTML = '';
+        buttons.forEach(btn => {
+            const button = document.createElement('button');
+            button.className = `modal-btn ${btn.className || 'modal-btn-secondary'}`;
+            button.textContent = btn.text;
+            button.onclick = () => {
+                overlay.classList.add('hidden');
+                resolve(btn.value);
+            };
+            footerEl.appendChild(button);
+        });
+        
+        overlay.classList.remove('hidden');
+    });
+}
+
+function customAlert(message, title = 'TabbiMate') {
+    return showModal(title, message, [
+        { text: 'OK', value: true, className: 'modal-btn-primary' }
+    ]);
+}
+
+function customConfirm(message, title = 'Confirm') {
+    return showModal(title, message, [
+        { text: 'Cancel', value: false, className: 'modal-btn-secondary' },
+        { text: 'OK', value: true, className: 'modal-btn-primary' }
+    ]);
+}
+
+function customPrompt(message, title = 'Input', defaultValue = '') {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('modal-overlay');
+        const titleEl = document.getElementById('modal-title');
+        const bodyEl = document.getElementById('modal-body');
+        const footerEl = document.getElementById('modal-footer');
+        
+        titleEl.textContent = title;
+        bodyEl.innerHTML = `
+            <p>${message}</p>
+            <textarea class="modal-input modal-textarea" id="modal-prompt-input" placeholder="Enter your response...">${defaultValue}</textarea>
+        `;
+        
+        footerEl.innerHTML = '';
+        
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'modal-btn modal-btn-secondary';
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.onclick = () => {
+            overlay.classList.add('hidden');
+            resolve(null);
+        };
+        
+        const okBtn = document.createElement('button');
+        okBtn.className = 'modal-btn modal-btn-primary';
+        okBtn.textContent = 'Submit';
+        okBtn.onclick = () => {
+            const input = document.getElementById('modal-prompt-input');
+            overlay.classList.add('hidden');
+            resolve(input.value);
+        };
+        
+        footerEl.appendChild(cancelBtn);
+        footerEl.appendChild(okBtn);
+        
+        overlay.classList.remove('hidden');
+        
+        // Focus input after a brief delay
+        setTimeout(() => {
+            const input = document.getElementById('modal-prompt-input');
+            if (input) input.focus();
+        }, 100);
+    });
+}
+
 const LanguageRequestManager = {
     saveRequest(language, email, notes) {
         const requests = this.getRequests();

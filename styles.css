@@ -30,7 +30,7 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    animation: mapZoomPan 30s ease-in-out infinite;
+    animation: mapZoomPan 60s linear infinite;
 }
 
 .world-map::before {
@@ -38,13 +38,12 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 200%;
     height: 100%;
-    /* Use the local map.svg extracted from Tabbi AI */
-    background-image: url('map.svg');
-    /* contain ensures the full map is visible without cropping */
-    background-size: contain;
-    background-position: center;
+    /* Duplicate map side by side for seamless loop */
+    background-image: url('map.svg'), url('map.svg');
+    background-size: 50% auto, 50% auto;
+    background-position: 0 center, 100% center;
     background-repeat: no-repeat;
     /* Match the subtle look of the reference page */
     opacity: 0.4;
@@ -54,19 +53,10 @@ body {
 
 @keyframes mapZoomPan {
     0% {
-        transform: translate(0, 0);
-    }
-    25% {
-        transform: translate(-3%, 2%);
-    }
-    50% {
-        transform: translate(-5%, -2%);
-    }
-    75% {
-        transform: translate(-2%, -3%);
+        transform: translateX(0);
     }
     100% {
-        transform: translate(0, 0);
+        transform: translateX(-50%);
     }
 }
 
@@ -318,6 +308,33 @@ body {
 
 .level-btn:active {
     transform: scale(0.98);
+}
+
+.level-btn.disabled,
+.level-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #F7F7F8;
+    border-color: #E5E5E7;
+}
+
+.level-btn.disabled:hover,
+.level-btn:disabled:hover {
+    background: #F7F7F8;
+    border-color: #E5E5E7;
+    box-shadow: none;
+    transform: none;
+}
+
+.level-btn.disabled .level-name,
+.level-btn:disabled .level-name {
+    color: #A1A1A6;
+}
+
+.level-btn.disabled .level-badge,
+.level-btn:disabled .level-badge {
+    background: #E5E5E7;
+    color: #A1A1A6;
 }
 
 .level-info {
