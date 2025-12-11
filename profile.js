@@ -658,9 +658,31 @@ function setupMapDots() {
     });
 }
 
+// Setup sign out button
+function setupProfileSignOut() {
+    const signoutBtn = document.getElementById('profile-signout-btn');
+    if (signoutBtn) {
+        signoutBtn.addEventListener('click', async () => {
+            if (confirm('Are you sure you want to sign out?')) {
+                try {
+                    await firebase.auth().signOut();
+                    window.location.href = 'auth.html';
+                } catch (error) {
+                    console.error('Sign out error:', error);
+                    customAlert('Failed to sign out. Please try again.');
+                }
+            }
+        });
+    }
+}
+
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+        init();
+        setupProfileSignOut();
+    });
 } else {
     init();
+    setupProfileSignOut();
 }

@@ -228,7 +228,16 @@ body {
     margin-bottom: 0;
 }
 
-.profile-link {
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: absolute;
+    right: 0;
+}
+
+.profile-link,
+.signout-link {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -239,16 +248,19 @@ body {
     color: #666;
     transition: all 0.2s ease;
     text-decoration: none;
-    position: absolute;
-    right: 0;
+    border: none;
+    cursor: pointer;
+    padding: 0;
 }
 
-.profile-link:hover {
+.profile-link:hover,
+.signout-link:hover {
     background: #f5f5f5;
     color: #BF3143;
 }
 
-.profile-link svg {
+.profile-link svg,
+.signout-link svg {
     stroke: currentColor;
 }
 

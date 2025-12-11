@@ -2122,14 +2122,34 @@ function setupSessionSummary() {
     }
 }
 
+// Setup sign out button
+function setupSignOut() {
+    const signoutBtn = document.getElementById('signout-btn');
+    if (signoutBtn) {
+        signoutBtn.addEventListener('click', async () => {
+            if (confirm('Are you sure you want to sign out?')) {
+                try {
+                    await firebase.auth().signOut();
+                    window.location.href = 'auth.html';
+                } catch (error) {
+                    console.error('Sign out error:', error);
+                    alert('Failed to sign out. Please try again.');
+                }
+            }
+        });
+    }
+}
+
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         init();
         setupSessionSummary();
+        setupSignOut();
     });
 } else {
     init();
     setupSessionSummary();
+    setupSignOut();
 }
 
