@@ -512,21 +512,23 @@ function updateSessionInfo(username) {
     const favoriteData = FavoritesManager.getFavoriteData(username);
     const sessionCountEl = document.getElementById('session-count');
     const favoriteBtn = document.getElementById('favorite-btn');
+    const tooltip = favoriteBtn.querySelector('.favorite-tooltip');
     
     if (favoriteData) {
         sessionCountEl.textContent = `${favoriteData.sessionCount} sessions`;
         favoriteBtn.classList.add('favorited');
-        favoriteBtn.title = 'Remove from favorites';
+        tooltip.textContent = 'Remove from Favorites';
     } else {
         sessionCountEl.textContent = '1 session';
         favoriteBtn.classList.remove('favorited');
-        favoriteBtn.title = 'Add to favorites';
+        tooltip.textContent = 'Add to Favorites';
     }
 }
 
 // Setup favorite button
 function setupFavoriteButton() {
     const favoriteBtn = document.getElementById('favorite-btn');
+    const tooltip = favoriteBtn.querySelector('.favorite-tooltip');
     
     favoriteBtn.addEventListener('click', async () => {
         if (!currentMatchedUser) return;
@@ -536,17 +538,78 @@ function setupFavoriteButton() {
         
         if (isFavorited) {
             favoriteBtn.classList.add('favorited');
-            favoriteBtn.title = 'Remove from favorites';
+            tooltip.textContent = 'Remove from Favorites';
             await customAlert(`${username} has been added to your favorites! You'll be more likely to match with them in the future.`, 'Added to Favorites');
         } else {
             favoriteBtn.classList.remove('favorited');
-            favoriteBtn.title = 'Add to favorites';
+            tooltip.textContent = 'Add to Favorites';
             await customAlert(`${username} has been removed from your favorites.`, 'Removed from Favorites');
         }
         
         // Update session count
         updateSessionInfo(username);
     });
+}
+
+// Setup username click to show profile
+function setupUsernameClick() {
+    const partnerNameEl = document.getElementById('matched-user-name');
+    
+    partnerNameEl.addEventListener('click', () => {
+        if (!currentMatchedUser) return;
+        showUserProfile(currentMatchedUser);
+    });
+}
+
+// Show user profile in a modal-like tooltip
+function showUserProfile(user) {
+    const languages = formatLanguages(user.languages);
+    const interests = user.interests.join(', ');
+    
+    const profileHTML = `
+        <div style="text-align: left;">
+            <div style="margin-bottom: 16px;">
+                <h3 style="margin: 0 0 8px 0; color: #333; font-size: 20px;">${user.name}</h3>
+                <p style="margin: 0; color: #666; font-size: 14px;">📍 ${getLocationName(user)}</p>
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+                <p style="margin: 0 0 8px 0; color: #333; font-weight: 600; font-size: 14px;">Languages:</p>
+                <p style="margin: 0; color: #666; font-size: 14px;">${languages}</p>
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+                <p style="margin: 0 0 8px 0; color: #333; font-weight: 600; font-size: 14px;">Interests:</p>
+                <p style="margin: 0; color: #666; font-size: 14px;">${interests}</p>
+            </div>
+            
+            <div style="margin-bottom: 0;">
+                <p style="margin: 0 0 8px 0; color: #333; font-weight: 600; font-size: 14px;">Practice Level:</p>
+                <p style="margin: 0; color: #666; font-size: 14px;">${user.practiceLevel}</p>
+            </div>
+        </div>
+    `;
+    
+    customAlert({ html: profileHTML }, `${user.name}'s Profile`);
+}
+
+// Helper function to get readable location name
+function getLocationName(user) {
+    // Map coordinates to city names (simplified for demo)
+    const locationMap = {
+        'April': 'Berkeley, CA',
+        'Marty': 'Chicago, IL',
+        'Sofia': 'Bogotá, Colombia',
+        'Kenji': 'Tokyo, Japan',
+        'Hyejin': 'Seoul, Korea',
+        'Carlos': 'Mexico City, Mexico',
+        'Ravi': 'Mumbai, India',
+        'Maria': 'Manila, Philippines',
+        'Liam': 'Sydney, Australia',
+        'Emma': 'London, UK'
+    };
+    
+    return locationMap[user.name] || 'Unknown';
 }
 
 // Setup back button
@@ -612,6 +675,7 @@ function setupVideoCallControls() {
     setupMessageChannel();
     setupHelpMenu();
     setupFavoriteButton();
+    setupUsernameClick();
 }
 
 // Setup toggle buttons (video, audio, AI, chat, share)
