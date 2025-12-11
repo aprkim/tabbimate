@@ -687,44 +687,47 @@ body {
 }
 
 .ai-btn {
-    background: white;
-    color: #BF3143;
+    background: #BF3143;
+    color: white;
     border-color: #BF3143;
     font-weight: 500;
 }
 
 .ai-btn:hover {
-    background: #FFF6F7;
+    background: #A02638;
+    border-color: #A02638;
 }
 
 .ai-btn .control-icon {
-    stroke: #BF3143;
+    stroke: white;
 }
 
 .ai-btn[data-active="true"] {
-    background: white;
-    color: #BF3143;
+    background: #BF3143;
+    color: white;
     border-color: #BF3143;
     box-shadow: 0 0 0 3px rgba(191, 49, 67, 0.2);
 }
 
 .ai-btn[data-active="true"]:hover {
-    background: #FFF6F7;
+    background: #A02638;
+    border-color: #A02638;
 }
 
 .ai-btn[data-active="false"] {
-    background: white;
-    color: #BF3143;
+    background: #BF3143;
+    color: white;
     border-color: #BF3143;
     opacity: 1;
 }
 
 .ai-btn[data-active="false"] .control-icon {
-    stroke: #BF3143;
+    stroke: white;
 }
 
 .ai-btn[data-active="false"]:hover {
-    background: #FFF6F7;
+    background: #A02638;
+    border-color: #A02638;
 }
 
 /* AI Chat Box */
