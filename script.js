@@ -852,6 +852,27 @@ function setupVideoCallControls() {
 }
 
 // Setup toggle buttons (video, audio, AI, chat, share)
+// Reposition chat boxes side by side when both are open
+function repositionChatBoxes() {
+    const aiChatBox = document.getElementById('ai-chat-box');
+    const messageChannel = document.getElementById('message-channel');
+    
+    const aiIsOpen = !aiChatBox.classList.contains('hidden');
+    const chatIsOpen = !messageChannel.classList.contains('hidden');
+    
+    if (aiIsOpen && chatIsOpen) {
+        // Both open: position side by side
+        aiChatBox.style.right = '420px'; // Chat box width (360px) + gap (40px) + some padding
+        messageChannel.style.right = '40px';
+    } else if (aiIsOpen) {
+        // Only AI open: center it
+        aiChatBox.style.right = '40px';
+    } else if (chatIsOpen) {
+        // Only Chat open: center it
+        messageChannel.style.right = '40px';
+    }
+}
+
 function setupToggleButtons() {
     // Video toggle
     document.getElementById('toggle-camera').addEventListener('click', function() {
@@ -873,14 +894,13 @@ function setupToggleButtons() {
         this.dataset.active = !isActive;
         
         const aiChatBox = document.getElementById('ai-chat-box');
-        const messageChannel = document.getElementById('message-channel');
         
         if (!isActive) {
             aiChatBox.classList.remove('hidden');
-            messageChannel.classList.add('hidden');
-            document.getElementById('toggle-chat').dataset.active = 'false';
+            repositionChatBoxes(); // Reposition if both are open
         } else {
             aiChatBox.classList.add('hidden');
+            repositionChatBoxes(); // Reposition remaining box
         }
         
         console.log('AI Chat:', !isActive ? 'ON' : 'OFF');
@@ -892,14 +912,13 @@ function setupToggleButtons() {
         this.dataset.active = !isActive;
         
         const messageChannel = document.getElementById('message-channel');
-        const aiChatBox = document.getElementById('ai-chat-box');
         
         if (!isActive) {
             messageChannel.classList.remove('hidden');
-            aiChatBox.classList.add('hidden');
-            document.getElementById('toggle-ai').dataset.active = 'false';
+            repositionChatBoxes(); // Reposition if both are open
         } else {
             messageChannel.classList.add('hidden');
+            repositionChatBoxes(); // Reposition remaining box
         }
         
         console.log('Message Channel:', !isActive ? 'ON' : 'OFF');
