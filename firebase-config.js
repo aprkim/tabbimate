@@ -62,6 +62,9 @@ function initializeFirebase() {
     }
 }
 
+// Auto-initialize Firebase when this script loads
+initializeFirebase();
+
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { firebaseConfig, initializeFirebase };

@@ -663,6 +663,12 @@ function setupProfileSignOut() {
     const signoutBtn = document.getElementById('profile-signout-btn');
     if (signoutBtn) {
         signoutBtn.addEventListener('click', async () => {
+            // Check if Firebase is initialized
+            if (typeof firebase === 'undefined' || !firebase.auth) {
+                customAlert('Please wait a moment and try again.', 'Not Ready');
+                return;
+            }
+
             const confirmed = await customConfirm(
                 'Are you sure you want to sign out?',
                 'Sign Out'
