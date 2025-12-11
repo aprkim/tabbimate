@@ -1,0 +1,230 @@
+/* Auth Page Styles */
+
+.auth-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow-y: auto;
+}
+
+.auth-container {
+    position: relative;
+    z-index: 100;
+    width: 100%;
+    max-width: 440px;
+    padding: 20px;
+}
+
+.auth-card {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Title & Subtitle */
+.auth-title {
+    font-size: 32px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 12px;
+    color: #333;
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: #666;
+    font-size: 15px;
+    margin-bottom: 32px;
+}
+
+/* Form */
+.auth-form {
+    margin-bottom: 24px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 15px;
+    border: 1.5px solid #E0E0E0;
+    border-radius: 12px;
+    background: white;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.auth-input:focus {
+    outline: none;
+    border-color: #BF3143;
+    box-shadow: 0 0 0 4px rgba(191, 49, 67, 0.1);
+}
+
+.form-hint {
+    display: block;
+    font-size: 12px;
+    color: #999;
+    margin-top: 6px;
+}
+
+/* Buttons */
+.auth-btn {
+    width: 100%;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.primary-btn {
+    background: #BF3143;
+    color: white;
+    margin-bottom: 16px;
+}
+
+.primary-btn:hover:not(:disabled) {
+    background: #a02838;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(191, 49, 67, 0.3);
+}
+
+.primary-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.google-btn {
+    background: white;
+    color: #333;
+    border: 1.5px solid #E0E0E0;
+    margin-bottom: 24px;
+}
+
+.google-btn:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+}
+
+/* Spinner */
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Links */
+.forgot-link {
+    display: block;
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.forgot-link:hover {
+    color: #BF3143;
+    text-decoration: underline;
+}
+
+.toggle-form {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+}
+
+.toggle-form a {
+    color: #BF3143;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.toggle-form a:hover {
+    text-decoration: underline;
+}
+
+/* Divider */
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 24px 0;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: #E0E0E0;
+}
+
+.divider span {
+    position: relative;
+    background: white;
+    padding: 0 16px;
+    color: #999;
+    font-size: 13px;
+}
+
+/* Error Message */
+.error-message {
+    background: rgba(191, 49, 67, 0.1);
+    color: #BF3143;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(191, 49, 67, 0.3);
+}
+
+.success-message {
+    background: rgba(76, 175, 80, 0.1);
+    color: #2E7D32;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 32px 24px;
+    }
+
+    .auth-title {
+        font-size: 28px;
+    }
+}
+

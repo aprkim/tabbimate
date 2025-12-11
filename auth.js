@@ -1,0 +1,269 @@
+/**
+ * Authentication Page Logic
+ */
+
+// DOM Elements
+let elements = {};
+
+// Initialize
+function init() {
+    // Initialize Firebase
+    if (!initializeFirebase()) {
+        showError('Firebase could not be initialized. Please check your configuration.');
+        return;
+    }
+
+    // Cache DOM elements
+    elements = {
+        // Sign In
+        signinForm: document.getElementById('signin-form'),
+        signinCard: document.querySelector('.auth-card:first-of-type'),
+        email: document.getElementById('email'),
+        password: document.getElementById('password'),
+        signinBtnText: document.getElementById('signin-btn-text'),
+        signinSpinner: document.getElementById('signin-spinner'),
+        googleSignin: document.getElementById('google-signin'),
+        forgotPassword: document.getElementById('forgot-password'),
+        showSignup: document.getElementById('show-signup'),
+
+        // Sign Up
+        signupForm: document.getElementById('signup-form'),
+        signupCard: document.getElementById('signup-card'),
+        signupEmail: document.getElementById('signup-email'),
+        signupPassword: document.getElementById('signup-password'),
+        confirmPassword: document.getElementById('confirm-password'),
+        signupBtnText: document.getElementById('signup-btn-text'),
+        signupSpinner: document.getElementById('signup-spinner'),
+        googleSignup: document.getElementById('google-signup'),
+        showSignin: document.getElementById('show-signin')
+    };
+
+    // Setup event listeners
+    setupEventListeners();
+
+    // Check if user is already signed in
+    firebaseService.onAuthStateChanged((user) => {
+        if (user) {
+            // User is signed in, redirect to profile or home
+            window.location.href = 'index.html';
+        }
+    });
+
+    // Setup map dots
+    setupMapDots();
+}
+
+// Setup event listeners
+function setupEventListeners() {
+    // Sign In
+    elements.signinForm.addEventListener('submit', handleSignIn);
+    elements.googleSignin.addEventListener('click', handleGoogleSignIn);
+    elements.forgotPassword.addEventListener('click', handleForgotPassword);
+    elements.showSignup.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleForm('signup');
+    });
+
+    // Sign Up
+    elements.signupForm.addEventListener('submit', handleSignUp);
+    elements.googleSignup.addEventListener('click', handleGoogleSignIn);
+    elements.showSignin.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleForm('signin');
+    });
+}
+
+// Handle Sign In
+async function handleSignIn(e) {
+    e.preventDefault();
+
+    const email = elements.email.value.trim();
+    const password = elements.password.value;
+
+    if (!email || !password) {
+        showError('Please enter email and password.');
+        return;
+    }
+
+    // Show loading
+    setLoading('signin', true);
+
+    // Sign in
+    const result = await firebaseService.signIn(email, password);
+
+    if (result.success) {
+        // Redirect to home
+        window.location.href = 'index.html';
+    } else {
+        setLoading('signin', false);
+        showError(result.error || 'Sign in failed. Please try again.');
+    }
+}
+
+// Handle Sign Up
+async function handleSignUp(e) {
+    e.preventDefault();
+
+    const email = elements.signupEmail.value.trim();
+    const password = elements.signupPassword.value;
+    const confirmPass = elements.confirmPassword.value;
+
+    if (!email || !password || !confirmPass) {
+        showError('Please fill in all fields.', 'signup');
+        return;
+    }
+
+    if (password.length < 6) {
+        showError('Password must be at least 6 characters.', 'signup');
+        return;
+    }
+
+    if (password !== confirmPass) {
+        showError('Passwords do not match.', 'signup');
+        return;
+    }
+
+    // Show loading
+    setLoading('signup', true);
+
+    // Sign up
+    const result = await firebaseService.signUp(email, password);
+
+    if (result.success) {
+        // Show success
+        showSuccess('Account created! Redirecting...', 'signup');
+        
+        // Redirect to profile setup
+        setTimeout(() => {
+            window.location.href = 'profile.html';
+        }, 1500);
+    } else {
+        setLoading('signup', false);
+        showError(result.error || 'Sign up failed. Please try again.', 'signup');
+    }
+}
+
+// Handle Google Sign In
+async function handleGoogleSignIn() {
+    const result = await firebaseService.signInWithGoogle();
+
+    if (result.success) {
+        // Redirect to home
+        window.location.href = 'index.html';
+    } else {
+        showError(result.error || 'Google sign in failed. Please try again.');
+    }
+}
+
+// Handle Forgot Password
+async function handleForgotPassword(e) {
+    e.preventDefault();
+
+    const email = elements.email.value.trim();
+
+    if (!email) {
+        showError('Please enter your email address.');
+        return;
+    }
+
+    const result = await firebaseService.resetPassword(email);
+
+    if (result.success) {
+        showSuccess('Password reset email sent! Check your inbox.');
+    } else {
+        showError(result.error || 'Failed to send reset email.');
+    }
+}
+
+// Toggle between sign in and sign up forms
+function toggleForm(form) {
+    if (form === 'signup') {
+        elements.signinCard.classList.add('hidden');
+        elements.signupCard.classList.remove('hidden');
+    } else {
+        elements.signupCard.classList.add('hidden');
+        elements.signinCard.classList.remove('hidden');
+    }
+
+    // Clear any error messages
+    clearMessages();
+}
+
+// Set loading state
+function setLoading(form, isLoading) {
+    if (form === 'signin') {
+        elements.signinBtnText.style.display = isLoading ? 'none' : 'inline';
+        elements.signinSpinner.classList.toggle('hidden', !isLoading);
+        elements.signinForm.querySelector('button[type="submit"]').disabled = isLoading;
+    } else {
+        elements.signupBtnText.style.display = isLoading ? 'none' : 'inline';
+        elements.signupSpinner.classList.toggle('hidden', !isLoading);
+        elements.signupForm.querySelector('button[type="submit"]').disabled = isLoading;
+    }
+}
+
+// Show error message
+function showError(message, form = 'signin') {
+    clearMessages();
+
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+
+    const targetForm = form === 'signin' ? elements.signinForm : elements.signupForm;
+    targetForm.insertBefore(errorDiv, targetForm.firstChild);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 5000);
+}
+
+// Show success message
+function showSuccess(message, form = 'signin') {
+    clearMessages();
+
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.textContent = message;
+
+    const targetForm = form === 'signin' ? elements.signinForm : elements.signupForm;
+    targetForm.insertBefore(successDiv, targetForm.firstChild);
+}
+
+// Clear all messages
+function clearMessages() {
+    document.querySelectorAll('.error-message, .success-message').forEach(el => el.remove());
+}
+
+// Setup map dots
+function setupMapDots() {
+    const dotsContainer = document.getElementById('dots-container');
+    
+    const dotPositions = [
+        { top: "32%", left: "18%" },
+        { top: "40%", left: "22%" },
+        { top: "65%", left: "30%" },
+        { top: "42%", left: "76%" },
+        { top: "50%", left: "26%" },
+        { top: "38%", left: "82%" },
+        { top: "47%", left: "70%" },
+        { top: "60%", left: "85%" }
+    ];
+
+    dotPositions.forEach(pos => {
+        const dot = document.createElement('div');
+        dot.className = 'user-dot';
+        dot.style.top = pos.top;
+        dot.style.left = pos.left;
+        dotsContainer.appendChild(dot);
+    });
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+

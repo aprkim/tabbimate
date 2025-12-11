@@ -14,13 +14,15 @@
 
 // Firebase configuration - REPLACE WITH YOUR ACTUAL CONFIG
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
-};
+    apiKey: "AIzaSyCCRUb4JjGMWa4j3O6JTg8OsbJpNnTSSbs",
+    authDomain: "tabbimate.firebaseapp.com",
+    projectId: "tabbimate",
+    storageBucket: "tabbimate.firebasestorage.app",
+    messagingSenderId: "954572245140",
+    appId: "1:954572245140:web:98fc71d28e2b4a9eca4c81",
+    measurementId: "G-ZC8PGD5LY4"
+  };
+  
 
 // Initialize Firebase
 let app, auth, db, storage;
