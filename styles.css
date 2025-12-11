@@ -464,18 +464,17 @@ body {
 }
 
 .leave-btn {
-    background: #BF3143;
-    color: white;
+    background: white;
+    color: #BF3143;
     border-color: #BF3143;
 }
 
 .leave-btn svg {
-    stroke: white;
+    stroke: #BF3143;
 }
 
 .leave-btn:hover {
-    background: #A02638;
-    border-color: #A02638;
+    background: #FFF6F7;
 }
 
 .video-title {
@@ -688,30 +687,29 @@ body {
 }
 
 .ai-btn {
-    background: #BF3143;
-    color: white;
+    background: white;
+    color: #BF3143;
     border-color: #BF3143;
     font-weight: 500;
 }
 
 .ai-btn:hover {
-    background: #a02838;
-    border-color: #a02838;
+    background: #FFF6F7;
 }
 
 .ai-btn .control-icon {
-    stroke: white;
+    stroke: #BF3143;
 }
 
 .ai-btn[data-active="true"] {
-    background: #BF3143;
+    background: white;
+    color: #BF3143;
     border-color: #BF3143;
     box-shadow: 0 0 0 3px rgba(191, 49, 67, 0.2);
 }
 
 .ai-btn[data-active="true"]:hover {
-    background: #a02838;
-    border-color: #a02838;
+    background: #FFF6F7;
 }
 
 .ai-btn[data-active="false"] {
@@ -726,7 +724,7 @@ body {
 }
 
 .ai-btn[data-active="false"]:hover {
-    background: #fff5f6;
+    background: #FFF6F7;
 }
 
 /* AI Chat Box */
