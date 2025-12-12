@@ -472,6 +472,32 @@
             color: #6B7280;
         }
         
+        .favorite-star-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            color: #D1D5DB;
+            flex-shrink: 0;
+        }
+        
+        .favorite-star-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .favorite-star-btn.active {
+            color: #BF3143;
+        }
+        
+        .favorite-star-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+        
         /* Account Card */
         .account-info {
             display: flex;
@@ -788,31 +814,43 @@
                 <div class="card">
                     <h2 class="card-title">Favorite Partners</h2>
                     <div class="favorites-list">
-                        <div class="favorite-item">
+                        <div class="favorite-item" data-partner-id="marty">
                             <div class="favorite-avatar">M</div>
                             <div class="favorite-info">
                                 <div class="favorite-name">Marty</div>
                                 <div class="favorite-languages">English (Native) • Spanish (Intermediate)</div>
                             </div>
-                            <button class="btn btn-primary btn-small">Call</button>
+                            <button class="favorite-star-btn active" onclick="toggleFavorite('marty', this)" aria-label="Remove from favorites">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                            </button>
                         </div>
                         
-                        <div class="favorite-item">
+                        <div class="favorite-item" data-partner-id="sofia">
                             <div class="favorite-avatar">S</div>
                             <div class="favorite-info">
                                 <div class="favorite-name">Sofia</div>
                                 <div class="favorite-languages">Spanish (Native) • English (Intermediate)</div>
                             </div>
-                            <button class="btn btn-primary btn-small">Call</button>
+                            <button class="favorite-star-btn active" onclick="toggleFavorite('sofia', this)" aria-label="Remove from favorites">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                            </button>
                         </div>
                         
-                        <div class="favorite-item">
+                        <div class="favorite-item" data-partner-id="kenji">
                             <div class="favorite-avatar">K</div>
                             <div class="favorite-info">
                                 <div class="favorite-name">Kenji</div>
                                 <div class="favorite-languages">Japanese (Native) • English (Advanced)</div>
                             </div>
-                            <button class="btn btn-primary btn-small">Call</button>
+                            <button class="favorite-star-btn active" onclick="toggleFavorite('kenji', this)" aria-label="Remove from favorites">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -897,20 +935,68 @@
             
             // Load user data
             loadUserData();
+            
+            // Setup auto-save
+            setupAutoSave();
         }
         
         // Load user data from Firebase or localStorage
         function loadUserData() {
             // Update email display if available
             if (userEmail) {
-                const emailElement = document.querySelector('.info-value');
-                if (emailElement) {
-                    emailElement.textContent = userEmail;
+                const emailElements = document.querySelectorAll('.info-value');
+                if (emailElements.length > 0) {
+                    emailElements[0].textContent = userEmail;
+                }
+                
+                // Update name from email (use part before @)
+                const userName = userEmail.split('@')[0];
+                const displayName = userName.charAt(0).toUpperCase() + userName.slice(1);
+                
+                // Update name in profile section
+                const nameInput = document.getElementById('name');
+                if (nameInput && nameInput.value === 'April Kim') {
+                    nameInput.value = displayName;
                 }
             }
             
-            // TODO: Load other user-specific data from Firebase
-            // For now, using placeholder data
+            // Load profile data from localStorage if exists
+            const profileKey = `tabbimate_profile_${userId}`;
+            const savedProfile = localStorage.getItem(profileKey);
+            
+            if (savedProfile) {
+                try {
+                    const profile = JSON.parse(savedProfile);
+                    
+                    // Update form fields with saved data
+                    if (profile.name) {
+                        const nameInput = document.getElementById('name');
+                        if (nameInput) nameInput.value = profile.name;
+                    }
+                    
+                    if (profile.location) {
+                        const locationInput = document.getElementById('location');
+                        if (locationInput) locationInput.value = profile.location;
+                    }
+                    
+                    if (profile.bio) {
+                        const bioTextarea = document.getElementById('bio');
+                        if (bioTextarea) bioTextarea.value = profile.bio;
+                    }
+                    
+                    if (profile.photoUrl) {
+                        const profilePreview = document.getElementById('profile-preview');
+                        const defaultAvatar = document.getElementById('default-avatar');
+                        if (profilePreview && defaultAvatar) {
+                            profilePreview.src = profile.photoUrl;
+                            profilePreview.style.display = 'block';
+                            defaultAvatar.style.display = 'none';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading profile data:', error);
+                }
+            }
         }
         
         // Photo preview
@@ -926,10 +1012,46 @@
                     profilePreview.src = event.target.result;
                     profilePreview.style.display = 'block';
                     defaultAvatar.style.display = 'none';
+                    
+                    // Save photo to profile
+                    saveProfileData();
                 };
                 reader.readAsDataURL(file);
             }
         });
+        
+        // Auto-save profile data when inputs change
+        function setupAutoSave() {
+            const nameInput = document.getElementById('name');
+            const locationInput = document.getElementById('location');
+            const bioTextarea = document.getElementById('bio');
+            
+            if (nameInput) {
+                nameInput.addEventListener('blur', saveProfileData);
+            }
+            if (locationInput) {
+                locationInput.addEventListener('blur', saveProfileData);
+            }
+            if (bioTextarea) {
+                bioTextarea.addEventListener('blur', saveProfileData);
+            }
+        }
+        
+        // Save profile data to localStorage
+        function saveProfileData() {
+            if (!userId) return;
+            
+            const profileKey = `tabbimate_profile_${userId}`;
+            const profile = {
+                name: document.getElementById('name')?.value || '',
+                location: document.getElementById('location')?.value || '',
+                bio: document.getElementById('bio')?.value || '',
+                photoUrl: document.getElementById('profile-preview')?.src || null
+            };
+            
+            localStorage.setItem(profileKey, JSON.stringify(profile));
+            console.log('Profile data saved for user:', userId);
+        }
         
         // Sign out handler
         function handleSignOut() {
@@ -939,6 +1061,59 @@
                 // Redirect to home page
                 window.location.href = 'index.html';
             }
+        }
+        
+        // Toggle favorite partner
+        function toggleFavorite(partnerId, button) {
+            const favoriteItem = button.closest('.favorite-item');
+            const isActive = button.classList.contains('active');
+            
+            if (isActive) {
+                // Unfavorite: remove the item with animation
+                button.classList.remove('active');
+                favoriteItem.style.opacity = '0';
+                favoriteItem.style.transform = 'translateX(20px)';
+                
+                setTimeout(() => {
+                    favoriteItem.remove();
+                    
+                    // Check if favorites list is empty
+                    const favoritesList = document.querySelector('.favorites-list');
+                    if (favoritesList.children.length === 0) {
+                        favoritesList.innerHTML = '<div class="empty-state"><p>No favorite partners yet</p></div>';
+                    }
+                }, 300);
+                
+                // Save to localStorage (remove from favorites)
+                removeFavoriteFromStorage(partnerId);
+            } else {
+                // Favorite: mark as active
+                button.classList.add('active');
+                button.setAttribute('aria-label', 'Remove from favorites');
+                
+                // Save to localStorage (add to favorites)
+                addFavoriteToStorage(partnerId);
+            }
+        }
+        
+        // Helper functions for localStorage
+        function getFavorites() {
+            const favorites = localStorage.getItem('tabbimate_favorites');
+            return favorites ? JSON.parse(favorites) : [];
+        }
+        
+        function addFavoriteToStorage(partnerId) {
+            const favorites = getFavorites();
+            if (!favorites.includes(partnerId)) {
+                favorites.push(partnerId);
+                localStorage.setItem('tabbimate_favorites', JSON.stringify(favorites));
+            }
+        }
+        
+        function removeFavoriteFromStorage(partnerId) {
+            let favorites = getFavorites();
+            favorites = favorites.filter(id => id !== partnerId);
+            localStorage.setItem('tabbimate_favorites', JSON.stringify(favorites));
         }
         
         // Initialize when page loads
