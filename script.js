@@ -970,9 +970,51 @@ async function reportUser(username) {
     }
 }
 
+// Show matching screen
+function showMatchingScreen(language, level) {
+    console.log('=== Showing matching screen ===');
+    
+    // Hide map and card
+    document.querySelector('.map-container').style.display = 'none';
+    document.querySelector('.center-container').style.display = 'none';
+    
+    // Show matching screen
+    const matchingScreen = document.getElementById('matching-screen');
+    matchingScreen.classList.remove('hidden');
+    
+    // Update matching info
+    document.getElementById('matching-language').textContent = language;
+    document.getElementById('matching-level').textContent = level;
+    
+    // Setup cancel button
+    const cancelBtn = document.getElementById('cancel-matching');
+    cancelBtn.onclick = () => {
+        console.log('Matching cancelled by user');
+        matchingScreen.classList.add('hidden');
+        document.querySelector('.map-container').style.display = 'block';
+        document.querySelector('.center-container').style.display = 'flex';
+    };
+    
+    console.log('Matching screen shown, waiting 1 minute...');
+}
+
 // Start video chat with matched user
 function startVideoChat(matchedUser, durationSeconds) {
     console.log('Starting video chat with:', matchedUser.name, 'Duration:', durationSeconds, 'seconds');
+    
+    // First show matching screen
+    showMatchingScreen(state.selectedLanguage, getLevelName(durationSeconds));
+    
+    // Wait 1 minute (60 seconds) then start the actual video chat
+    setTimeout(() => {
+        console.log('Match found! Starting video chat...');
+        startActualVideoChat(matchedUser, durationSeconds);
+    }, 60000); // 60 seconds = 1 minute
+}
+
+// Actually start the video chat (called after matching)
+function startActualVideoChat(matchedUser, durationSeconds) {
+    console.log('=== Starting actual video chat ===');
     
     // Store matched user and duration
     currentMatchedUser = matchedUser;
@@ -1019,7 +1061,11 @@ function startVideoChat(matchedUser, durationSeconds) {
     // Update session count and favorite status
     updateSessionInfo(matchedUser.name);
     
-    // Hide map and card, show video chat
+    // Hide matching screen and show video chat
+    const matchingScreen = document.getElementById('matching-screen');
+    if (matchingScreen) {
+        matchingScreen.classList.add('hidden');
+    }
     document.querySelector('.map-container').style.display = 'none';
     document.querySelector('.center-container').style.display = 'none';
     document.getElementById('video-chat').classList.remove('hidden');
@@ -1027,6 +1073,8 @@ function startVideoChat(matchedUser, durationSeconds) {
     // Setup end call button and timer
     setupVideoCallControls();
     startCallTimer(durationSeconds);
+    
+    console.log('=== Video chat started successfully ===');
 }
 
 // Helper to get level name from duration (in seconds)
