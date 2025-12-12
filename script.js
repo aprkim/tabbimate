@@ -7,6 +7,9 @@ const state = {
     selectedLevel: null
 };
 
+// Currently matched user for video chat
+let currentMatchedUser = null;
+
 // Guest mode toggle - set to true to test as a new user (non-logged-in)
 const GUEST_MODE = true;
 
@@ -300,6 +303,28 @@ function startVideoSession(sessionId) {
     } else {
         console.log('No user data found, using default 3 minutes');
     }
+    
+    // Set the matched user (for now, we'll randomly pick one or use from session storage)
+    // In the future, this would come from the actual matching algorithm
+    const storedMatchedUser = localStorage.getItem('tabbimate_matched_user');
+    if (storedMatchedUser) {
+        currentMatchedUser = JSON.parse(storedMatchedUser);
+        console.log('Matched user loaded from storage:', currentMatchedUser.name);
+    } else {
+        // Pick a random user as matched partner (excluding April)
+        const availableUsers = users.filter(u => u.name !== 'April');
+        currentMatchedUser = availableUsers[Math.floor(Math.random() * availableUsers.length)];
+        console.log('Random matched user selected:', currentMatchedUser.name);
+        
+        // Update the partner name in the UI
+        const partnerNameEl = document.getElementById('matched-user-name');
+        if (partnerNameEl) {
+            partnerNameEl.textContent = currentMatchedUser.name;
+        }
+    }
+    
+    // Update session info (favorite status and count)
+    updateSessionInfo(currentMatchedUser.name);
     
     // Initialize video controls and UI
     console.log('Initializing video controls...');

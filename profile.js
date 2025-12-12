@@ -119,6 +119,16 @@ function handleStartVideo() {
         interests: profileData.interests
     }));
     
+    // For now, create a mock matched user (in production, this would come from matching algorithm)
+    // Pick a random user from a small set
+    const mockUsers = [
+        { name: "Marty", languages: { english: "Native", spanish: "Intermediate" }, interests: ["Music", "Running", "Tech"] },
+        { name: "Sofia", languages: { english: "Intermediate", spanish: "Native" }, interests: ["Travel", "Art", "Cooking"] },
+        { name: "Kenji", languages: { english: "Advanced", japanese: "Native" }, interests: ["Gaming", "Anime", "Tech"] }
+    ];
+    const randomMatchedUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
+    localStorage.setItem('tabbimate_matched_user', JSON.stringify(randomMatchedUser));
+    
     // Generate a session ID
     const sessionId = Math.floor(1000000000 + Math.random() * 9000000000).toString();
     
