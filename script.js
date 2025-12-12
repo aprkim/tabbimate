@@ -354,12 +354,24 @@ function startVideoSession(sessionId) {
     // Update session info (favorite status and count)
     updateSessionInfo(currentMatchedUser.name);
     
+    // Initialize session data for summary
+    const userData2 = userData ? JSON.parse(userData) : {};
+    sessionData = {
+        sessionId: sessionId,
+        startTime: new Date(),
+        language: userData2.language || 'English',
+        level: userData2.level || 'Basic',
+        partner: currentMatchedUser.name,
+        durationMinutes: Math.round(duration / 60) // Convert seconds to minutes for display
+    };
+    console.log('Session data initialized:', sessionData);
+    
     // Initialize video controls and UI
     console.log('Initializing video controls...');
     setupVideoControls();
     
     console.log('Starting timer...');
-    startCallTimer(duration); // Start timer with duration in minutes
+    startCallTimer(duration); // Start timer with duration in seconds
     
     console.log('=== Video session initialization complete ===');
 }
@@ -959,21 +971,21 @@ async function reportUser(username) {
 }
 
 // Start video chat with matched user
-function startVideoChat(matchedUser, durationMinutes) {
-    console.log('Starting video chat with:', matchedUser.name, 'Duration:', durationMinutes, 'minutes');
+function startVideoChat(matchedUser, durationSeconds) {
+    console.log('Starting video chat with:', matchedUser.name, 'Duration:', durationSeconds, 'seconds');
     
     // Store matched user and duration
     currentMatchedUser = matchedUser;
-    state.sessionDuration = durationMinutes;
+    state.sessionDuration = durationSeconds;
     
     // Track session data for summary
     sessionData = {
         sessionId: generateSessionId(),
         startTime: new Date(),
         language: state.selectedLanguage,
-        level: getLevelName(durationMinutes),
+        level: getLevelName(durationSeconds),
         partner: matchedUser.name,
-        durationMinutes: durationMinutes
+        durationMinutes: Math.round(durationSeconds / 60) // Convert seconds to minutes for display
     };
     
     console.log('Session started with ID:', sessionData.sessionId);
@@ -1014,7 +1026,7 @@ function startVideoChat(matchedUser, durationMinutes) {
     
     // Setup end call button and timer
     setupVideoCallControls();
-    startCallTimer(durationMinutes);
+    startCallTimer(durationSeconds);
 }
 
 // Helper to get level name from duration (in seconds)
@@ -1820,10 +1832,11 @@ function startCallTimer(durationSeconds) {
         
         if (seconds < 0) {
             clearInterval(timerInterval);
-            console.log('Timer ended');
-            // Session ended naturally - start 3-minute cool-down
+            console.log('=== Main timer ended, starting cool-down ===');
+            // Session ended naturally - start cool-down
             showConfetti();
-            customAlert('Time\'s up! You have 3 more minutes to wrap up your conversation.', 'Main Session Complete').then(() => {
+            customAlert('Time\'s up! You have 10 more seconds to wrap up your conversation.', 'Main Session Complete').then(() => {
+                console.log('User clicked OK on time\'s up alert, starting cool-down');
                 startCooldownTimer();
             });
         }
@@ -1836,16 +1849,19 @@ function startCallTimer(durationSeconds) {
 
 // Start cool-down timer (10 seconds for testing)
 function startCooldownTimer() {
+    console.log('=== Starting cool-down timer ===');
     let seconds = 10; // 10 seconds for testing (change to 3 * 60 for production = 3 minutes)
     
     const updateTimer = () => {
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
+        console.log(`Cool-down timer: ${minutes}:${secs.toString().padStart(2, '0')} (${seconds}s remaining)`);
         document.getElementById('call-timer').textContent = `Cool-down ${minutes}:${secs.toString().padStart(2, '0')}`;
         
         seconds--;
         
         if (seconds < 0) {
+            console.log('=== Cool-down ended, showing session summary ===');
             clearInterval(timerInterval);
             // Cool-down ended - show session summary
             showSessionSummary();
@@ -1854,6 +1870,7 @@ function startCooldownTimer() {
     
     updateTimer(); // Update immediately
     timerInterval = setInterval(updateTimer, 1000);
+    console.log('Cool-down timer started');
 }
 
 // End video chat and return to language selection
