@@ -565,7 +565,7 @@ body {
 .interests-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    gap: 16px;
     margin-bottom: 24px;
     max-height: 400px;
     overflow-y: auto;
@@ -624,7 +624,7 @@ body {
 @media (max-width: 768px) {
     .interests-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        gap: 14px;
         max-height: 350px;
     }
     
