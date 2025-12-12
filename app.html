@@ -86,6 +86,43 @@
                 </div>
                 <a href="#" class="back-link" id="back-to-languages">← Change language</a>
             </div>
+
+            <!-- State 3: Tutorial Video (hidden initially) -->
+            <div class="card-content hidden" id="tutorial-video">
+                <a href="index.html" class="close-btn" title="Close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                <h1 class="card-title">
+                    How <span id="tutorial-level">Basic</span> Works
+                </h1>
+                <div class="video-placeholder">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <polygon points="10,8 16,12 10,16" fill="currentColor"/>
+                    </svg>
+                    <p>Tutorial video will play here</p>
+                </div>
+                <button class="primary-btn" id="tutorial-complete-btn">Continue</button>
+            </div>
+
+            <!-- State 4: Join Prompt (hidden initially) -->
+            <div class="card-content hidden" id="join-prompt">
+                <a href="index.html" class="close-btn" title="Close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                <h1 class="card-title">Ready to Start?</h1>
+                <p class="join-message">
+                    Create your profile to connect with language partners around the world and start practicing!
+                </p>
+                <div class="button-group">
+                    <a href="profile.html" class="primary-btn">Create Profile</a>
+                    <a href="auth.html" class="secondary-link">Already have an account? Log in</a>
+                </div>
+            </div>
         </div>
     </div>
 

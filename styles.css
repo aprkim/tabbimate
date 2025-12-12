@@ -544,6 +544,75 @@ body {
     color: #BF3143;
 }
 
+/* Tutorial Video Styles */
+.video-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 60px 20px;
+    margin: 24px 0;
+    color: #666;
+}
+
+.video-placeholder svg {
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.video-placeholder p {
+    margin: 0;
+    font-size: 16px;
+}
+
+/* Join Prompt Styles */
+.join-message {
+    text-align: center;
+    color: #666;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0 0 32px 0;
+    padding: 0 20px;
+}
+
+.primary-btn {
+    width: 100%;
+    padding: 16px;
+    background: #BF3143;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
+
+.primary-btn:hover {
+    background: #a52938;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(191, 49, 67, 0.3);
+}
+
+.secondary-link {
+    display: block;
+    text-align: center;
+    color: #666;
+    font-size: 15px;
+    text-decoration: none;
+    margin-top: 16px;
+    transition: color 0.2s ease;
+}
+
+.secondary-link:hover {
+    color: #BF3143;
+}
+
 /* Video Chat Interface */
 .video-chat-container {
     position: fixed;

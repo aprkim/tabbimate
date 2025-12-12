@@ -419,7 +419,16 @@ function setupLevelButtons() {
             const level = btn.getAttribute('data-level');
             const duration = parseInt(btn.getAttribute('data-duration'));
             console.log('Level button clicked:', level, 'Duration:', duration);
-            selectLevel(level, duration);
+            
+            // Check if user is logged in
+            const currentUser = users.find(u => u.name === 'April');
+            if (!currentUser) {
+                // Show tutorial for non-logged-in users
+                showTutorial(level);
+            } else {
+                // Existing flow for logged-in users
+                selectLevel(level, duration);
+            }
         });
     });
 }
@@ -2122,6 +2131,52 @@ function setupSessionSummary() {
     }
 }
 
+// Show tutorial video for non-logged-in users
+function showTutorial(level) {
+    const tutorialView = document.getElementById('tutorial-video');
+    const levelsView = document.getElementById('session-levels');
+    const tutorialLevelSpan = document.getElementById('tutorial-level');
+    
+    // Update tutorial level text
+    tutorialLevelSpan.textContent = level;
+    
+    // Transition views
+    levelsView.classList.add('fade-out');
+    setTimeout(() => {
+        levelsView.classList.add('hidden');
+        levelsView.classList.remove('fade-out');
+        tutorialView.classList.remove('hidden');
+        setTimeout(() => {
+            tutorialView.classList.add('fade-in');
+        }, 10);
+    }, 300);
+}
+
+// Show join prompt after tutorial
+function showJoinPrompt() {
+    const tutorialView = document.getElementById('tutorial-video');
+    const joinPromptView = document.getElementById('join-prompt');
+    
+    // Transition views
+    tutorialView.classList.add('fade-out');
+    setTimeout(() => {
+        tutorialView.classList.add('hidden');
+        tutorialView.classList.remove('fade-out');
+        joinPromptView.classList.remove('hidden');
+        setTimeout(() => {
+            joinPromptView.classList.add('fade-in');
+        }, 10);
+    }, 300);
+}
+
+// Setup tutorial complete button
+function setupTutorialButton() {
+    const tutorialCompleteBtn = document.getElementById('tutorial-complete-btn');
+    if (tutorialCompleteBtn) {
+        tutorialCompleteBtn.addEventListener('click', showJoinPrompt);
+    }
+}
+
 // Setup sign out button
 function setupSignOut() {
     const signoutBtn = document.getElementById('signout-btn');
@@ -2156,11 +2211,13 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         init();
         setupSessionSummary();
+        setupTutorialButton();
         setupSignOut();
     });
 } else {
     init();
     setupSessionSummary();
+    setupTutorialButton();
     setupSignOut();
 }
 
