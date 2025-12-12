@@ -111,11 +111,21 @@ function handleStartVideo() {
     const storageKey = `tabbimate_profile_${profileData.userId}`;
     localStorage.setItem(storageKey, JSON.stringify(profileData));
     
-    // Redirect to app session page
+    // Store user data for the app to use
+    localStorage.setItem('tabbimate_current_user', JSON.stringify({
+        userId: profileData.userId,
+        language: profileData.language,
+        level: profileData.level,
+        interests: profileData.interests
+    }));
+    
+    // Redirect to app session page with user data
     const basePath = window.location.pathname.includes('tabbimate') 
         ? '/tabbimate/app.html' 
         : '/app.html';
-    window.location.href = basePath;
+    
+    // Add query params to indicate we're starting from profile
+    window.location.href = `${basePath}?start=true&lang=${encodeURIComponent(profileData.language || 'English')}`;
 }
 
 // Setup map dots animation
