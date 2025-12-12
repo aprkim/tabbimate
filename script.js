@@ -366,14 +366,34 @@ function startVideoSession(sessionId) {
     };
     console.log('Session data initialized:', sessionData);
     
-    // Initialize video controls and UI
-    console.log('Initializing video controls...');
-    setupVideoControls();
+    // Show matching screen first
+    console.log('Showing matching screen before starting session...');
+    showMatchingScreen(userData2.language || 'English', userData2.level || 'Basic');
     
-    console.log('Starting timer...');
-    startCallTimer(duration); // Start timer with duration in seconds
-    
-    console.log('=== Video session initialization complete ===');
+    // Wait 1 minute then start the video chat
+    setTimeout(() => {
+        console.log('Match found! Starting video session...');
+        
+        // Hide matching screen
+        const matchingScreen = document.getElementById('matching-screen');
+        if (matchingScreen) {
+            matchingScreen.classList.add('hidden');
+        }
+        
+        // Show video chat
+        document.querySelector('.map-container').style.display = 'none';
+        document.querySelector('.center-container').style.display = 'none';
+        document.getElementById('video-chat').classList.remove('hidden');
+        
+        // Initialize video controls and UI
+        console.log('Initializing video controls...');
+        setupVideoControls();
+        
+        console.log('Starting timer...');
+        startCallTimer(duration); // Start timer with duration in seconds
+        
+        console.log('=== Video session initialization complete ===');
+    }, 60000); // 60 seconds = 1 minute
 }
 
 // Setup video controls
