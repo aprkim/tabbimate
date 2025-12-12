@@ -368,16 +368,18 @@ function startVideoSession(sessionId) {
     
     // Show matching screen first
     console.log('Showing matching screen before starting session...');
+    console.log('Language:', userData2.language || 'English', 'Level:', userData2.level || 'Basic');
     showMatchingScreen(userData2.language || 'English', userData2.level || 'Basic');
     
     // Wait 1 minute then start the video chat
-    setTimeout(() => {
+    matchingTimeoutId = setTimeout(() => {
         console.log('Match found! Starting video session...');
         
         // Hide matching screen
         const matchingScreen = document.getElementById('matching-screen');
         if (matchingScreen) {
             matchingScreen.classList.add('hidden');
+            console.log('Matching screen hidden');
         }
         
         // Show video chat
@@ -394,6 +396,8 @@ function startVideoSession(sessionId) {
         
         console.log('=== Video session initialization complete ===');
     }, 60000); // 60 seconds = 1 minute
+    
+    console.log('Matching timeout set, ID:', matchingTimeoutId);
 }
 
 // Setup video controls
@@ -993,7 +997,6 @@ async function reportUser(username) {
 // Show matching screen
 function showMatchingScreen(language, level) {
     console.log('=== Showing matching screen ===');
-    console.log('Matching source:', matchingSource);
     
     // Hide map and card
     document.querySelector('.map-container').style.display = 'none';
@@ -1011,49 +1014,9 @@ function showMatchingScreen(language, level) {
     const cancelBtn = document.getElementById('cancel-matching');
     cancelBtn.onclick = () => {
         console.log('Matching cancelled by user');
-        console.log('Source was:', matchingSource);
-        
-        // Clear the matching timeout to prevent race condition
-        if (matchingTimeoutId) {
-            clearTimeout(matchingTimeoutId);
-            matchingTimeoutId = null;
-            console.log('Matching timeout cleared');
-        }
-        
-        // Hide matching screen
         matchingScreen.classList.add('hidden');
-        
-        // Hide video chat if it was shown
-        const videoChat = document.getElementById('video-chat');
-        if (videoChat) {
-            videoChat.classList.add('hidden');
-        }
-        
-        // If user came from profile page, redirect back to profile
-        if (matchingSource === 'profile') {
-            console.log('Redirecting back to profile page...');
-            const userId = localStorage.getItem('tabbimate_user_id');
-            if (userId) {
-                const basePath = window.location.pathname.includes('tabbimate') 
-                    ? '/tabbimate/profile' 
-                    : '/profile';
-                window.location.href = `${window.location.origin}${basePath}/${userId}`;
-            } else {
-                // Fallback to index if no user ID
-                window.location.href = window.location.pathname.includes('tabbimate') 
-                    ? window.location.origin + '/tabbimate/' 
-                    : window.location.origin + '/';
-            }
-        } else {
-            // User came from app.html language selection, show map and card again
-            console.log('Returning to language selection screen...');
-            document.querySelector('.map-container').style.display = 'block';
-            document.querySelector('.center-container').style.display = 'flex';
-            
-            // Clear URL parameters
-            const cleanUrl = window.location.pathname.replace(/\/session\/\d+$/, '');
-            window.history.replaceState({}, '', window.location.origin + cleanUrl);
-        }
+        document.querySelector('.map-container').style.display = 'block';
+        document.querySelector('.center-container').style.display = 'flex';
     };
     
     console.log('Matching screen shown, waiting 1 minute...');
