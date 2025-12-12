@@ -7,11 +7,15 @@ let elements = {};
 
 // Initialize
 function init() {
+    console.log('=== Initializing auth page ===');
+    
     // Initialize Firebase
     if (!initializeFirebase()) {
+        console.error('Firebase initialization failed');
         showError('Firebase could not be initialized. Please check your configuration.');
         return;
     }
+    console.log('Firebase initialized successfully');
 
     // Cache DOM elements
     elements = {
@@ -37,18 +41,32 @@ function init() {
         googleSignup: document.getElementById('google-signup'),
         showSignin: document.getElementById('show-signin')
     };
+    
+    console.log('DOM elements cached:', Object.keys(elements).length, 'elements');
+    console.log('firebaseService available?', typeof firebaseService);
 
     // Setup event listeners
     setupEventListeners();
 
     // Setup map dots
     setupMapDots();
+    
+    console.log('=== Auth page initialization complete ===');
 }
 
 // Setup event listeners
 function setupEventListeners() {
+    console.log('=== Setting up event listeners ===');
+    console.log('Sign in form element:', elements.signinForm);
+    
     // Sign In
-    elements.signinForm.addEventListener('submit', handleSignIn);
+    if (elements.signinForm) {
+        elements.signinForm.addEventListener('submit', handleSignIn);
+        console.log('Sign in form listener attached');
+    } else {
+        console.error('Sign in form not found!');
+    }
+    
     elements.googleSignin.addEventListener('click', handleGoogleSignIn);
     elements.forgotPassword.addEventListener('click', handleForgotPassword);
     elements.showSignup.addEventListener('click', (e) => {
@@ -63,25 +81,37 @@ function setupEventListeners() {
         e.preventDefault();
         toggleForm('signin');
     });
+    
+    console.log('Event listeners setup complete');
 }
 
 // Handle Sign In
 async function handleSignIn(e) {
+    console.log('=== handleSignIn called ===');
     e.preventDefault();
 
     const email = elements.email.value.trim();
     const password = elements.password.value;
+    
+    console.log('Email:', email);
+    console.log('Password length:', password.length);
 
     if (!email || !password) {
+        console.log('Missing email or password');
         showError('Please enter email and password.');
         return;
     }
 
     // Show loading
     setLoading('signin', true);
+    
+    console.log('Calling firebaseService.signIn...');
+    console.log('firebaseService exists?', typeof firebaseService);
 
     // Sign in
     const result = await firebaseService.signIn(email, password);
+    
+    console.log('Sign in result:', result);
 
     if (result.success) {
         console.log('Sign in successful, redirecting to profileold.html');
@@ -91,6 +121,7 @@ async function handleSignIn(e) {
         console.log('Redirecting to:', profileUrl);
         window.location.href = profileUrl;
     } else {
+        console.log('Sign in failed:', result.error);
         setLoading('signin', false);
         showError(result.error || 'Sign in failed. Please try again.');
     }
