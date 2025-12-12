@@ -722,17 +722,34 @@ function setupFavoriteButton() {
 
 // Setup username click to show profile
 function setupUsernameClick() {
+    console.log('Setting up username click...');
     const partnerNameEl = document.getElementById('matched-user-name');
-    if (!partnerNameEl) return;
+    if (!partnerNameEl) {
+        console.error('Partner name element not found!');
+        return;
+    }
     
-    partnerNameEl.addEventListener('click', () => {
-        if (!currentMatchedUser) return;
-        showUserProfile(currentMatchedUser);
-    });
+    if (!partnerNameEl.dataset.listenerAttached) {
+        partnerNameEl.addEventListener('click', () => {
+            console.log('Partner name clicked, currentMatchedUser:', currentMatchedUser);
+            if (!currentMatchedUser) {
+                console.error('No matched user available!');
+                return;
+            }
+            showUserProfile(currentMatchedUser);
+        });
+        partnerNameEl.dataset.listenerAttached = 'true';
+        
+        // Make it look clickable
+        partnerNameEl.style.cursor = 'pointer';
+    }
+    
+    console.log('Username click setup complete');
 }
 
 // Show user profile in modal
 function showUserProfile(user) {
+    console.log('Showing user profile for:', user.name);
     const languages = formatLanguages(user.languages);
     const interests = user.interests.join(', ');
     
@@ -755,7 +772,10 @@ function showUserProfile(user) {
         </div>
     `;
     
-    customAlert({ html: profileHTML }, `${user.name}'s Profile`);
+    // Use showModal directly to pass HTML content
+    showModal(`${user.name}'s Profile`, { html: profileHTML }, [
+        { text: 'OK', value: true, className: 'modal-btn-primary' }
+    ]);
 }
 
 // Helper function to get readable location name
