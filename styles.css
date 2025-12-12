@@ -564,12 +564,13 @@ body {
 
 .interests-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 150px);
     gap: 16px;
     margin-bottom: 24px;
     max-height: 400px;
     overflow-y: auto;
     padding-right: 8px;
+    justify-content: center;
 }
 
 .interest-chip {
@@ -587,8 +588,8 @@ body {
     transition: all 0.2s ease;
     text-align: center;
     color: #333;
-    min-height: 85px;
-    aspect-ratio: 1;
+    width: 150px;
+    height: 100px;
 }
 
 .interest-icon {
@@ -623,14 +624,15 @@ body {
 
 @media (max-width: 768px) {
     .interests-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 14px;
+        grid-template-columns: repeat(2, 140px);
+        gap: 12px;
         max-height: 350px;
     }
     
     .interest-chip {
         padding: 12px 8px;
-        min-height: 80px;
+        width: 140px;
+        height: 90px;
     }
     
     .interest-icon {
