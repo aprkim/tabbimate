@@ -81,8 +81,16 @@ function init() {
         cropCloseBtn: document.getElementById('crop-close-btn')
     };
 
-    // Load profile from localStorage
-    loadProfile();
+    // Check if this is a new user from the app flow
+    const urlParams = new URLSearchParams(window.location.search);
+    const isNewUser = urlParams.get('new') === 'true';
+    
+    if (isNewUser) {
+        loadNewUserData();
+    } else {
+        // Load existing profile from localStorage
+        loadProfile();
+    }
 
     // Setup event listeners
     setupEventListeners();
@@ -94,6 +102,41 @@ function init() {
 
     // Setup map dots animation
     setupMapDots();
+}
+
+// Load new user data from app flow
+function loadNewUserData() {
+    try {
+        const stored = localStorage.getItem('tabbimate_new_user_data');
+        if (stored) {
+            const data = JSON.parse(stored);
+            
+            // Pre-fill with selected language and level
+            if (data.language && data.level) {
+                profile.languages.push({
+                    id: Date.now().toString(),
+                    name: data.language,
+                    level: data.level,
+                    match: true
+                });
+            }
+            
+            // Pre-fill with selected interests
+            if (data.interests && Array.isArray(data.interests)) {
+                profile.interests = [...data.interests];
+            }
+            
+            // Clear the temporary data
+            localStorage.removeItem('tabbimate_new_user_data');
+            
+            // Save to profile storage
+            saveProfile();
+            
+            console.log('New user data loaded:', data);
+        }
+    } catch (error) {
+        console.error('Error loading new user data:', error);
+    }
 }
 
 // Load profile from localStorage

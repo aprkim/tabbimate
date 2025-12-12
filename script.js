@@ -3,7 +3,8 @@ const state = {
     selectedLanguage: null,
     currentView: 'language-selection',
     sessionDuration: null,
-    matchedUser: null
+    matchedUser: null,
+    selectedLevel: null
 };
 
 // Guest mode toggle - set to true to test as a new user (non-logged-in)
@@ -2142,6 +2143,9 @@ function showInterestSelection(level) {
     const interestView = document.getElementById('interest-selection');
     const levelsView = document.getElementById('session-levels');
     
+    // Store the selected level
+    state.selectedLevel = level;
+    
     // Reset selected interests
     selectedInterests = [];
     updateInterestButton();
@@ -2232,7 +2236,16 @@ function setupInterestButton() {
     if (continueBtn) {
         continueBtn.addEventListener('click', () => {
             if (selectedInterests.length === 3) {
-                showTutorial();
+                // Store data in localStorage for profile page
+                const profileData = {
+                    language: state.selectedLanguage,
+                    level: state.selectedLevel,
+                    interests: selectedInterests
+                };
+                localStorage.setItem('tabbimate_new_user_data', JSON.stringify(profileData));
+                
+                // Redirect to profile page
+                window.location.href = 'profile.html?new=true';
             }
         });
     }
