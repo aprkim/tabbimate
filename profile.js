@@ -37,6 +37,7 @@ const MAX_PHOTO_SIZE = 5 * 1024 * 1024; // 5MB
 
 // Profile state
 let profile = {
+    userId: null, // Unique user ID
     languages: [],
     interests: [],
     location: {
@@ -81,15 +82,54 @@ function init() {
         cropCloseBtn: document.getElementById('crop-close-btn')
     };
 
-    // Check if this is a new user from the app flow
+    // Get user ID from URL or localStorage
     const urlParams = new URLSearchParams(window.location.search);
-    const isNewUser = urlParams.get('new') === 'true';
+    const urlUserId = urlParams.get('id');
     
-    if (isNewUser) {
-        loadNewUserData();
+    if (urlUserId) {
+        // User ID from URL (new or returning user)
+        profile.userId = urlUserId;
+        localStorage.setItem('tabbimate_user_id', urlUserId);
+        
+        // Check if this is a new user with onboarding data
+        const newUserData = localStorage.getItem('tabbimate_new_user_data');
+        if (newUserData) {
+            loadNewUserData();
+        } else {
+            // Load existing profile for this user ID
+            loadProfile();
+        }
+        
+        // Update URL to clean format without showing query param
+        const cleanUrl = `${window.location.pathname}/${urlUserId}`;
+        window.history.replaceState({}, '', cleanUrl);
     } else {
-        // Load existing profile from localStorage
-        loadProfile();
+        // Check if URL has ID in path format (e.g., /profile.html/12345678)
+        const pathParts = window.location.pathname.split('/');
+        const lastPart = pathParts[pathParts.length - 1];
+        
+        if (lastPart && /^\d{8}$/.test(lastPart)) {
+            // Valid 8-digit ID in path
+            profile.userId = lastPart;
+            localStorage.setItem('tabbimate_user_id', lastPart);
+            loadProfile();
+        } else {
+            // No ID in URL, get from localStorage or create new
+            const storedUserId = localStorage.getItem('tabbimate_user_id');
+            if (storedUserId) {
+                profile.userId = storedUserId;
+                loadProfile();
+                // Redirect to URL with ID
+                window.location.href = `profile.html?id=${storedUserId}`;
+            } else {
+                // Create new user ID
+                const newUserId = Math.floor(10000000 + Math.random() * 90000000).toString();
+                profile.userId = newUserId;
+                localStorage.setItem('tabbimate_user_id', newUserId);
+                // Redirect to URL with ID
+                window.location.href = `profile.html?id=${newUserId}`;
+            }
+        }
     }
 
     // Setup event listeners
@@ -142,7 +182,9 @@ function loadNewUserData() {
 // Load profile from localStorage
 function loadProfile() {
     try {
-        const stored = localStorage.getItem(STORAGE_KEY);
+        // Load with user-specific key
+        const storageKey = `tabbimate_profile_${profile.userId}`;
+        const stored = localStorage.getItem(storageKey);
         if (stored) {
             profile = JSON.parse(stored);
         }
@@ -200,7 +242,9 @@ function updateLocationStatus() {
 // Save profile to localStorage
 function saveProfile() {
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+        // Save with user-specific key
+        const storageKey = `tabbimate_profile_${profile.userId}`;
+        localStorage.setItem(storageKey, JSON.stringify(profile));
         showSaveStatus();
     } catch (error) {
         console.error('Error saving profile:', error);

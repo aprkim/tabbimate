@@ -13,6 +13,11 @@ const GUEST_MODE = true;
 // Store selected interests for new users
 let selectedInterests = [];
 
+// Generate unique 8-digit user ID
+function generateUserId() {
+    return Math.floor(10000000 + Math.random() * 90000000).toString();
+}
+
 // User database - structured format for easy expansion
 const users = [
     {
@@ -2236,16 +2241,23 @@ function setupInterestButton() {
     if (continueBtn) {
         continueBtn.addEventListener('click', () => {
             if (selectedInterests.length === 3) {
-                // Store data in localStorage for profile page
+                // Generate NEW unique user ID when guest completes interest selection
+                const userId = generateUserId();
+                
+                // Store the new user ID
+                localStorage.setItem('tabbimate_user_id', userId);
+                
+                // Store onboarding data for profile page
                 const profileData = {
+                    userId: userId,
                     language: state.selectedLanguage,
                     level: state.selectedLevel,
                     interests: selectedInterests
                 };
                 localStorage.setItem('tabbimate_new_user_data', JSON.stringify(profileData));
                 
-                // Redirect to profile page
-                window.location.href = 'profile.html?new=true';
+                // Redirect to profile page with the new user ID
+                window.location.href = `profile.html?id=${userId}`;
             }
         });
     }
