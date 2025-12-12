@@ -3,51 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
+    <title>Page Not Found - Tabbi Mate</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="favicon.svg">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #FAFAFA;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 48px;
+            color: #1a1a1a;
+        }
+
+        .tabbi-red {
+            color: #BF3143;
+        }
+
+        .error-code {
+            font-size: 120px;
+            font-weight: 700;
+            color: #BF3143;
+            line-height: 1;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #6B7280;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #BF3143;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #A82837;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #F3F4F6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #E5E7EB;
+        }
+
+        .redirect-message {
+            display: none;
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 32px;
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .redirect-message.show {
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            .error-code {
+                font-size: 80px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+    
     <script>
         // Handle client-side routing for clean URLs
         (function() {
             const path = window.location.pathname;
+            let shouldRedirect = false;
+            let redirectUrl = '';
             
             // Check if URL matches /profile/[8-digit-id]
             const profileMatch = path.match(/^\/tabbimate\/profile\/(\d{8})$/);
             if (profileMatch) {
                 const userId = profileMatch[1];
-                window.location.replace(`/tabbimate/profile.html?id=${userId}`);
-                return;
+                redirectUrl = `/tabbimate/profile.html?id=${userId}`;
+                shouldRedirect = true;
             }
             
             // Check if URL matches /profile/[8-digit-id] (without /tabbimate prefix for local)
             const profileMatchLocal = path.match(/^\/profile\/(\d{8})$/);
             if (profileMatchLocal) {
                 const userId = profileMatchLocal[1];
-                window.location.replace(`/profile.html?id=${userId}`);
-                return;
+                redirectUrl = `/profile.html?id=${userId}`;
+                shouldRedirect = true;
             }
             
             // Check if URL matches /session/[10-digit-id]
             const sessionMatch = path.match(/^\/tabbimate\/session\/(\d{10})$/);
             if (sessionMatch) {
                 const sessionId = sessionMatch[1];
-                window.location.replace(`/tabbimate/app.html?session=${sessionId}`);
-                return;
+                redirectUrl = `/tabbimate/app.html?session=${sessionId}`;
+                shouldRedirect = true;
             }
             
             // Check if URL matches /session/[10-digit-id] (without /tabbimate prefix for local)
             const sessionMatchLocal = path.match(/^\/session\/(\d{10})$/);
             if (sessionMatchLocal) {
                 const sessionId = sessionMatchLocal[1];
-                window.location.replace(`/app.html?session=${sessionId}`);
-                return;
+                redirectUrl = `/app.html?session=${sessionId}`;
+                shouldRedirect = true;
             }
             
-            // Otherwise redirect to home
-            window.location.replace('/tabbimate/');
+            // If matched routing pattern, redirect
+            if (shouldRedirect) {
+                const redirectMsg = document.getElementById('redirect-msg');
+                if (redirectMsg) {
+                    redirectMsg.classList.add('show');
+                }
+                setTimeout(() => {
+                    window.location.replace(redirectUrl);
+                }, 100);
+            }
         })();
     </script>
 </head>
 <body>
-    <p>Redirecting...</p>
+    <div class="container">
+        <div class="logo">
+            <span class="tabbi-red">Tabbi</span> Mate
+        </div>
+        
+        <div class="error-code">404</div>
+        
+        <h1>Page Not Found</h1>
+        
+        <p>Sorry, we couldn't find the page you're looking for. It might have been moved or doesn't exist.</p>
+        
+        <div class="btn-group">
+            <a href="index.html" class="btn btn-primary">Go Home</a>
+            <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+        </div>
+        
+        <div id="redirect-msg" class="redirect-message">
+            Redirecting...
+        </div>
+    </div>
 </body>
 </html>
-
