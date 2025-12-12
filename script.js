@@ -273,7 +273,8 @@ function init() {
 
 // Start video chat session
 function startVideoSession(sessionId) {
-    console.log('Video session started:', sessionId);
+    console.log('=== Starting video session ===');
+    console.log('Session ID:', sessionId);
     
     // Load user data from localStorage
     const userData = localStorage.getItem('tabbimate_current_user');
@@ -294,12 +295,20 @@ function startVideoSession(sessionId) {
         
         if (user.level && levelDurations[user.level]) {
             duration = levelDurations[user.level];
+            console.log(`Duration set to ${duration} minutes based on level: ${user.level}`);
         }
+    } else {
+        console.log('No user data found, using default 3 minutes');
     }
     
     // Initialize video controls and UI
+    console.log('Initializing video controls...');
     setupVideoControls();
+    
+    console.log('Starting timer...');
     startCallTimer(duration); // Start timer with duration in minutes
+    
+    console.log('=== Video session initialization complete ===');
 }
 
 // Setup video controls
@@ -650,30 +659,40 @@ function updateSessionInfo(username) {
 
 // Setup favorite button
 function setupFavoriteButton() {
+    console.log('Setting up favorite button...');
     const favoriteBtn = document.getElementById('favorite-btn');
-    if (!favoriteBtn) return;
+    if (!favoriteBtn) {
+        console.error('Favorite button not found!');
+        return;
+    }
     
     const tooltip = favoriteBtn.querySelector('.favorite-tooltip');
     
-    favoriteBtn.addEventListener('click', async () => {
-        if (!currentMatchedUser) return;
-        
-        const username = currentMatchedUser.name;
-        const isFavorited = FavoritesManager.toggleFavorite(username);
-        
-        if (isFavorited) {
-            favoriteBtn.classList.add('favorited');
-            if (tooltip) tooltip.textContent = 'Remove from Favorites';
-            await customAlert(`${username} has been added to your favorites! You'll be more likely to match with them in the future.`, 'Added to Favorites');
-        } else {
-            favoriteBtn.classList.remove('favorited');
-            if (tooltip) tooltip.textContent = 'Add to Favorites';
-            await customAlert(`${username} has been removed from your favorites.`, 'Removed from Favorites');
-        }
-        
-        // Update session count
-        updateSessionInfo(username);
-    });
+    if (!favoriteBtn.dataset.listenerAttached) {
+        favoriteBtn.addEventListener('click', async () => {
+            console.log('Favorite button clicked');
+            if (!currentMatchedUser) return;
+            
+            const username = currentMatchedUser.name;
+            const isFavorited = FavoritesManager.toggleFavorite(username);
+            
+            if (isFavorited) {
+                favoriteBtn.classList.add('favorited');
+                if (tooltip) tooltip.textContent = 'Remove from Favorites';
+                await customAlert(`${username} has been added to your favorites! You'll be more likely to match with them in the future.`, 'Added to Favorites');
+            } else {
+                favoriteBtn.classList.remove('favorited');
+                if (tooltip) tooltip.textContent = 'Add to Favorites';
+                await customAlert(`${username} has been removed from your favorites.`, 'Removed from Favorites');
+            }
+            
+            // Update session count
+            updateSessionInfo(username);
+        });
+        favoriteBtn.dataset.listenerAttached = 'true';
+    }
+    
+    console.log('Favorite button setup complete');
 }
 
 // Setup username click to show profile
@@ -744,54 +763,71 @@ function getLocationName(user) {
 
 // Setup Help Menu
 function setupHelpMenu() {
+    console.log('Setting up help menu...');
     const helpBtn = document.getElementById('help-btn');
     const helpMenu = document.getElementById('help-menu');
     const guidelinesBtn = document.getElementById('session-guidelines');
     const blockBtn = document.getElementById('block-user');
     const reportBtn = document.getElementById('report-user');
     
-    if (!helpBtn || !helpMenu) return;
+    if (!helpBtn || !helpMenu) {
+        console.error('Help button or menu not found!');
+        return;
+    }
     
-    // Toggle help menu
-    helpBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        helpMenu.classList.toggle('hidden');
-    });
+    // Remove existing listeners by checking flag
+    if (!helpBtn.dataset.listenerAttached) {
+        // Toggle help menu
+        helpBtn.addEventListener('click', (e) => {
+            console.log('Help button clicked');
+            e.stopPropagation();
+            helpMenu.classList.toggle('hidden');
+        });
+        helpBtn.dataset.listenerAttached = 'true';
+    }
     
-    // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!helpMenu.contains(e.target) && e.target !== helpBtn) {
-            helpMenu.classList.add('hidden');
-        }
-    });
+    // Close menu when clicking outside (only attach once)
+    if (!document.body.dataset.helpMenuListenerAttached) {
+        document.addEventListener('click', (e) => {
+            if (!helpMenu.contains(e.target) && e.target !== helpBtn) {
+                helpMenu.classList.add('hidden');
+            }
+        });
+        document.body.dataset.helpMenuListenerAttached = 'true';
+    }
     
     // Session Guidelines
-    if (guidelinesBtn) {
+    if (guidelinesBtn && !guidelinesBtn.dataset.listenerAttached) {
         guidelinesBtn.addEventListener('click', () => {
             helpMenu.classList.add('hidden');
             showSessionGuidelines();
         });
+        guidelinesBtn.dataset.listenerAttached = 'true';
     }
     
     // Block User
-    if (blockBtn) {
+    if (blockBtn && !blockBtn.dataset.listenerAttached) {
         blockBtn.addEventListener('click', () => {
             helpMenu.classList.add('hidden');
             if (currentMatchedUser) {
                 blockUser(currentMatchedUser.name);
             }
         });
+        blockBtn.dataset.listenerAttached = 'true';
     }
     
     // Report User
-    if (reportBtn) {
+    if (reportBtn && !reportBtn.dataset.listenerAttached) {
         reportBtn.addEventListener('click', () => {
             helpMenu.classList.add('hidden');
             if (currentMatchedUser) {
                 reportUser(currentMatchedUser.name);
             }
         });
+        reportBtn.dataset.listenerAttached = 'true';
     }
+    
+    console.log('Help menu setup complete');
 }
 
 // Show Session Guidelines
@@ -949,13 +985,20 @@ function showAllDots() {
 
 // Setup video call controls
 function setupVideoCallControls() {
+    console.log('Setting up video call controls...');
     const leaveBtn = document.getElementById('leave-call');
+    
+    if (!leaveBtn) {
+        console.error('Leave button not found!');
+        return;
+    }
     
     // Remove old listener if exists
     const newLeaveBtn = leaveBtn.cloneNode(true);
     leaveBtn.parentNode.replaceChild(newLeaveBtn, leaveBtn);
     
     newLeaveBtn.addEventListener('click', async () => {
+        console.log('Leave button clicked');
         const confirmed = await customConfirm('Are you sure you want to leave this session?', 'Leave Session');
         if (confirmed) {
             // Clear timer
@@ -966,6 +1009,8 @@ function setupVideoCallControls() {
             showSessionSummary();
         }
     });
+    
+    console.log('Leave button listener attached');
     
     // Setup control buttons
     setupToggleButtons();
@@ -1000,61 +1045,85 @@ function repositionChatBoxes() {
 }
 
 function setupToggleButtons() {
+    console.log('Setting up toggle buttons...');
+    
     // Video toggle
-    document.getElementById('toggle-camera').addEventListener('click', function() {
-        const isActive = this.dataset.active === 'true';
-        this.dataset.active = !isActive;
-        console.log('Video:', !isActive ? 'ON' : 'OFF');
-    });
+    const cameraBtn = document.getElementById('toggle-camera');
+    if (cameraBtn && !cameraBtn.dataset.listenerAttached) {
+        cameraBtn.addEventListener('click', function() {
+            const isActive = this.dataset.active === 'true';
+            this.dataset.active = !isActive;
+            console.log('Video:', !isActive ? 'ON' : 'OFF');
+        });
+        cameraBtn.dataset.listenerAttached = 'true';
+    }
     
     // Audio toggle
-    document.getElementById('toggle-mic').addEventListener('click', function() {
-        const isActive = this.dataset.active === 'true';
-        this.dataset.active = !isActive;
-        console.log('Audio:', !isActive ? 'ON' : 'OFF');
-    });
+    const micBtn = document.getElementById('toggle-mic');
+    if (micBtn && !micBtn.dataset.listenerAttached) {
+        micBtn.addEventListener('click', function() {
+            const isActive = this.dataset.active === 'true';
+            this.dataset.active = !isActive;
+            console.log('Audio:', !isActive ? 'ON' : 'OFF');
+        });
+        micBtn.dataset.listenerAttached = 'true';
+    }
     
     // AI chat toggle
-    document.getElementById('toggle-ai').addEventListener('click', function() {
-        const isActive = this.dataset.active === 'true';
-        this.dataset.active = !isActive;
-        
-        const aiChatBox = document.getElementById('ai-chat-box');
-        
-        if (!isActive) {
-            aiChatBox.classList.remove('hidden');
-            repositionChatBoxes(); // Reposition if both are open
-        } else {
-            aiChatBox.classList.add('hidden');
-            repositionChatBoxes(); // Reposition remaining box
-        }
-        
-        console.log('AI Chat:', !isActive ? 'ON' : 'OFF');
-    });
+    const aiBtn = document.getElementById('toggle-ai');
+    if (aiBtn && !aiBtn.dataset.listenerAttached) {
+        aiBtn.addEventListener('click', function() {
+            const isActive = this.dataset.active === 'true';
+            this.dataset.active = !isActive;
+            
+            const aiChatBox = document.getElementById('ai-chat-box');
+            
+            if (!isActive) {
+                aiChatBox.classList.remove('hidden');
+                repositionChatBoxes(); // Reposition if both are open
+            } else {
+                aiChatBox.classList.add('hidden');
+                repositionChatBoxes(); // Reposition remaining box
+            }
+            
+            console.log('AI Chat:', !isActive ? 'ON' : 'OFF');
+        });
+        aiBtn.dataset.listenerAttached = 'true';
+    }
     
     // Message channel toggle
-    document.getElementById('toggle-chat').addEventListener('click', function() {
-        const isActive = this.dataset.active === 'true';
-        this.dataset.active = !isActive;
-        
-        const messageChannel = document.getElementById('message-channel');
-        
-        if (!isActive) {
-            messageChannel.classList.remove('hidden');
-            repositionChatBoxes(); // Reposition if both are open
-        } else {
-            messageChannel.classList.add('hidden');
-            repositionChatBoxes(); // Reposition remaining box
-        }
-        
-        console.log('Message Channel:', !isActive ? 'ON' : 'OFF');
-    });
+    const chatBtn = document.getElementById('toggle-chat');
+    if (chatBtn && !chatBtn.dataset.listenerAttached) {
+        chatBtn.addEventListener('click', function() {
+            const isActive = this.dataset.active === 'true';
+            this.dataset.active = !isActive;
+            
+            const messageChannel = document.getElementById('message-channel');
+            
+            if (!isActive) {
+                messageChannel.classList.remove('hidden');
+                repositionChatBoxes(); // Reposition if both are open
+            } else {
+                messageChannel.classList.add('hidden');
+                repositionChatBoxes(); // Reposition remaining box
+            }
+            
+            console.log('Message Channel:', !isActive ? 'ON' : 'OFF');
+        });
+        chatBtn.dataset.listenerAttached = 'true';
+    }
     
     // Share screen
-    document.getElementById('toggle-share').addEventListener('click', async function() {
-        console.log('Share screen clicked');
-        await customAlert('Screen sharing functionality will be added here!', 'Screen Share');
-    });
+    const shareBtn = document.getElementById('toggle-share');
+    if (shareBtn && !shareBtn.dataset.listenerAttached) {
+        shareBtn.addEventListener('click', async function() {
+            console.log('Share screen clicked');
+            await customAlert('Screen sharing functionality will be added here!', 'Screen Share');
+        });
+        shareBtn.dataset.listenerAttached = 'true';
+    }
+    
+    console.log('Toggle buttons setup complete');
 }
 
 // AI Language Coach - Conversation history
@@ -1629,6 +1698,8 @@ function generateSessionId() {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 function startCallTimer(durationMinutes) {
+    console.log(`Starting call timer for ${durationMinutes} minutes`);
+    
     // Clear any existing timer
     if (timerInterval) {
         clearInterval(timerInterval);
@@ -1636,16 +1707,24 @@ function startCallTimer(durationMinutes) {
     
     // Convert minutes to seconds
     let seconds = durationMinutes * 60;
+    console.log(`Timer will run for ${seconds} seconds`);
+    
+    const timerElement = document.getElementById('call-timer');
+    if (!timerElement) {
+        console.error('Timer element not found!');
+        return;
+    }
     
     const updateTimer = () => {
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        document.getElementById('call-timer').textContent = `Ends in ${minutes}:${secs.toString().padStart(2, '0')}`;
+        timerElement.textContent = `Ends in ${minutes}:${secs.toString().padStart(2, '0')}`;
         
         seconds--;
         
         if (seconds < 0) {
             clearInterval(timerInterval);
+            console.log('Timer ended');
             // Session ended naturally - start 3-minute cool-down
             showConfetti();
             customAlert('Time\'s up! You have 3 more minutes to wrap up your conversation.', 'Main Session Complete').then(() => {
@@ -1656,6 +1735,7 @@ function startCallTimer(durationMinutes) {
     
     updateTimer(); // Update immediately
     timerInterval = setInterval(updateTimer, 1000);
+    console.log('Timer started successfully');
 }
 
 // Start 3-minute cool-down timer
