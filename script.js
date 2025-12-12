@@ -282,6 +282,7 @@ function startVideoSession(sessionId) {
     // Load user data from localStorage
     const userData = localStorage.getItem('tabbimate_current_user');
     let duration = 3; // default 3 minutes
+    let currentUserName = 'Guest'; // default for guest users
     
     if (userData) {
         const user = JSON.parse(userData);
@@ -304,6 +305,19 @@ function startVideoSession(sessionId) {
         console.log('No user data found, using default 3 minutes');
     }
     
+    // Check if user is logged in via Firebase
+    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+        const firebaseUser = firebase.auth().currentUser;
+        currentUserName = firebaseUser.displayName || firebaseUser.email.split('@')[0];
+        console.log('Logged in user:', currentUserName);
+    }
+    
+    // Update local user name in video UI
+    const localNameEl = document.getElementById('local-name');
+    if (localNameEl) {
+        localNameEl.textContent = `${currentUserName} (You)`;
+    }
+    
     // Set the matched user (for now, we'll randomly pick one or use from session storage)
     // In the future, this would come from the actual matching algorithm
     const storedMatchedUser = localStorage.getItem('tabbimate_matched_user');
@@ -315,12 +329,26 @@ function startVideoSession(sessionId) {
         const availableUsers = users.filter(u => u.name !== 'April');
         currentMatchedUser = availableUsers[Math.floor(Math.random() * availableUsers.length)];
         console.log('Random matched user selected:', currentMatchedUser.name);
-        
-        // Update the partner name in the UI
-        const partnerNameEl = document.getElementById('matched-user-name');
-        if (partnerNameEl) {
-            partnerNameEl.textContent = currentMatchedUser.name;
-        }
+    }
+    
+    // Update the partner name in the UI (both places)
+    const partnerNameEl = document.getElementById('matched-user-name');
+    if (partnerNameEl) {
+        partnerNameEl.textContent = currentMatchedUser.name;
+    }
+    const remoteNameEl = document.getElementById('remote-name');
+    if (remoteNameEl) {
+        remoteNameEl.textContent = currentMatchedUser.name.toLowerCase();
+    }
+    
+    // Update Help menu with user's name
+    const blockUsernameEl = document.getElementById('block-username');
+    if (blockUsernameEl) {
+        blockUsernameEl.textContent = currentMatchedUser.name;
+    }
+    const reportUsernameEl = document.getElementById('report-username');
+    if (reportUsernameEl) {
+        reportUsernameEl.textContent = currentMatchedUser.name;
     }
     
     // Update session info (favorite status and count)
@@ -951,6 +979,19 @@ function startVideoChat(matchedUser, durationMinutes) {
     const baseUrl = window.location.pathname.replace(/\/$/, ''); // Remove trailing slash
     const newUrl = `${window.location.origin}${baseUrl}/session/${sessionData.sessionId}`;
     window.history.pushState({ sessionId: sessionData.sessionId }, '', newUrl);
+    
+    // Determine current user name (Guest or logged-in user)
+    let currentUserName = 'Guest';
+    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+        const firebaseUser = firebase.auth().currentUser;
+        currentUserName = firebaseUser.displayName || firebaseUser.email.split('@')[0];
+    }
+    
+    // Update local user name in video UI
+    const localNameEl = document.getElementById('local-name');
+    if (localNameEl) {
+        localNameEl.textContent = `${currentUserName} (You)`;
+    }
     
     // Update UI with matched user info
     document.getElementById('matched-user-name').textContent = matchedUser.name;
