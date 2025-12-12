@@ -2231,7 +2231,8 @@ function updateInterestButton() {
     const continueBtn = document.getElementById('interests-continue-btn');
     if (continueBtn) {
         continueBtn.textContent = `Continue (${selectedInterests.length}/3)`;
-        continueBtn.disabled = selectedInterests.length !== 3;
+        // Enable button when at least 1 interest is selected
+        continueBtn.disabled = selectedInterests.length === 0;
     }
 }
 
@@ -2240,7 +2241,8 @@ function setupInterestButton() {
     const continueBtn = document.getElementById('interests-continue-btn');
     if (continueBtn) {
         continueBtn.addEventListener('click', () => {
-            if (selectedInterests.length === 3) {
+            // Allow continuing with 1-3 interests
+            if (selectedInterests.length >= 1 && selectedInterests.length <= 3) {
                 // Generate NEW unique user ID when guest completes interest selection
                 const userId = generateUserId();
                 
