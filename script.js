@@ -2438,6 +2438,7 @@ function setupInterestButton() {
                     level: state.selectedLevel,
                     interests: selectedInterests
                 };
+                console.log('Storing new user data:', profileData);
                 localStorage.setItem('tabbimate_new_user_data', JSON.stringify(profileData));
                 
                 // Redirect to profile page with the new user ID (absolute path)

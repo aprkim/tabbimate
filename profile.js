@@ -81,18 +81,26 @@ function loadProfileData() {
 
 // Update profile display
 function updateProfileDisplay() {
+    console.log('Updating profile display with:', profileData);
+    
     // Update language display
     const languageDisplay = document.getElementById('language-display');
     if (profileData.language && profileData.level) {
-        languageDisplay.querySelector('span').textContent = 
-            `${profileData.language} • ${profileData.level}`;
+        // Get the second span (not the icon span)
+        const textSpan = languageDisplay.querySelectorAll('span')[1];
+        if (textSpan) {
+            textSpan.textContent = `${profileData.language} • ${profileData.level}`;
+        }
     }
     
     // Update interests display
     const interestsDisplay = document.getElementById('interests-display');
     if (profileData.interests && profileData.interests.length > 0) {
-        interestsDisplay.querySelector('span').textContent = 
-            profileData.interests.join(', ');
+        // Get the second span (not the icon span)
+        const textSpan = interestsDisplay.querySelectorAll('span')[1];
+        if (textSpan) {
+            textSpan.textContent = profileData.interests.join(', ');
+        }
     }
 }
 
