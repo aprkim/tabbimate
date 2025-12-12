@@ -25,6 +25,22 @@
                 return;
             }
             
+            // Check if URL matches /session/[10-digit-id]
+            const sessionMatch = path.match(/^\/tabbimate\/session\/(\d{10})$/);
+            if (sessionMatch) {
+                const sessionId = sessionMatch[1];
+                window.location.replace(`/tabbimate/app.html?session=${sessionId}`);
+                return;
+            }
+            
+            // Check if URL matches /session/[10-digit-id] (without /tabbimate prefix for local)
+            const sessionMatchLocal = path.match(/^\/session\/(\d{10})$/);
+            if (sessionMatchLocal) {
+                const sessionId = sessionMatchLocal[1];
+                window.location.replace(`/app.html?session=${sessionId}`);
+                return;
+            }
+            
             // Otherwise redirect to home
             window.location.replace('/tabbimate/');
         })();

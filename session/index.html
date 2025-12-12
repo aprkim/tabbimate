@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session - Tabbi Mate</title>
+    <script>
+        // Redirect to app.html with session data
+        const path = window.location.pathname;
+        const sessionMatch = path.match(/\/session\/(\d{10})$/);
+        
+        if (sessionMatch) {
+            const sessionId = sessionMatch[1];
+            // Redirect to app.html which contains the video chat interface
+            const basePath = window.location.pathname.includes('tabbimate') 
+                ? '/tabbimate/app.html' 
+                : '/app.html';
+            window.location.replace(`${basePath}?session=${sessionId}`);
+        } else {
+            // No session ID, redirect to home
+            window.location.replace(window.location.pathname.includes('tabbimate') ? '/tabbimate/' : '/');
+        }
+    </script>
+</head>
+<body>
+    <p>Loading session...</p>
+</body>
+</html>
+
