@@ -1079,13 +1079,18 @@ function setupVideoCallControls() {
         return;
     }
     
-    // Remove old listener if exists
-    const newLeaveBtn = leaveBtn.cloneNode(true);
-    leaveBtn.parentNode.replaceChild(newLeaveBtn, leaveBtn);
+    // Check if already setup
+    if (leaveBtn.dataset.listenerAttached === 'true') {
+        console.log('Leave button listener already attached, skipping');
+        return;
+    }
     
-    newLeaveBtn.addEventListener('click', async () => {
+    leaveBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         console.log('Leave button clicked');
         const confirmed = await customConfirm('Are you sure you want to leave this session?', 'Leave Session');
+        console.log('User confirmed:', confirmed);
         if (confirmed) {
             // Clear timer
             if (timerInterval) {
@@ -1096,16 +1101,8 @@ function setupVideoCallControls() {
         }
     });
     
+    leaveBtn.dataset.listenerAttached = 'true';
     console.log('Leave button listener attached');
-    
-    // Setup control buttons
-    setupToggleButtons();
-    setupAIChatBox();
-    setupAIPopout();
-    setupMessageChannel();
-    setupHelpMenu();
-    setupFavoriteButton();
-    setupUsernameClick();
 }
 
 // Setup toggle buttons (video, audio, AI, chat, share)
