@@ -114,12 +114,12 @@ async function handleSignIn(e) {
     console.log('Sign in result:', result);
 
     if (result.success) {
-        console.log('Sign in successful, redirecting to profileold.html');
+        console.log('Sign in successful, redirecting to dashboard.html');
         console.log('Current URL:', window.location.href);
-        // Redirect to profile page for logged-in users
-        const profileUrl = window.location.origin + '/tabbimate/profileold.html';
-        console.log('Redirecting to:', profileUrl);
-        window.location.href = profileUrl;
+        // Redirect to dashboard for logged-in users
+        const dashboardUrl = window.location.origin + '/tabbimate/dashboard.html';
+        console.log('Redirecting to:', dashboardUrl);
+        window.location.href = dashboardUrl;
     } else {
         console.log('Sign in failed:', result.error);
         setLoading('signin', false);
@@ -160,12 +160,12 @@ async function handleSignUp(e) {
         // Show success
         showSuccess('Account created! Redirecting...', 'signup');
         
-        // Redirect to profile setup for logged-in users
+        // Redirect to dashboard for logged-in users
         setTimeout(() => {
-            console.log('Sign up successful, redirecting to profileold.html');
-            const profileUrl = window.location.origin + '/tabbimate/profileold.html';
-            console.log('Redirecting to:', profileUrl);
-            window.location.href = profileUrl;
+            console.log('Sign up successful, redirecting to dashboard.html');
+            const dashboardUrl = window.location.origin + '/tabbimate/dashboard.html';
+            console.log('Redirecting to:', dashboardUrl);
+            window.location.href = dashboardUrl;
         }, 1500);
     } else {
         setLoading('signup', false);
@@ -178,11 +178,11 @@ async function handleGoogleSignIn() {
     const result = await firebaseService.signInWithGoogle();
 
     if (result.success) {
-        console.log('Google sign in successful, redirecting to profileold.html');
-        // Redirect to profile page for logged-in users
-        const profileUrl = window.location.origin + '/tabbimate/profileold.html';
-        console.log('Redirecting to:', profileUrl);
-        window.location.href = profileUrl;
+        console.log('Google sign in successful, redirecting to dashboard.html');
+        // Redirect to dashboard for logged-in users
+        const dashboardUrl = window.location.origin + '/tabbimate/dashboard.html';
+        console.log('Redirecting to:', dashboardUrl);
+        window.location.href = dashboardUrl;
     } else {
         showError(result.error || 'Google sign in failed. Please try again.');
     }
