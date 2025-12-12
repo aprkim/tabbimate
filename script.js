@@ -2332,25 +2332,33 @@ function generateSummaryPhrases(language, level) {
 function showSessionSummary() {
     console.log('Showing session summary');
     
-    if (!sessionData) {
-        console.error('No session data available');
-        return;
-    }
-    
     // Hide video chat
     const videoChat = document.getElementById('video-chat');
     if (videoChat) {
         videoChat.classList.add('hidden');
     }
     
+    // Use placeholder data if no session data available
+    if (!sessionData) {
+        console.warn('No session data available, using placeholder data');
+        sessionData = {
+            sessionId: '0000000000',
+            startTime: new Date(Date.now() - 180000), // 3 minutes ago
+            language: 'English',
+            level: 'Basic',
+            partner: 'Practice Partner',
+            durationMinutes: 3
+        };
+    }
+    
     // Calculate actual duration
     const endTime = new Date();
-    const actualDuration = Math.round((endTime - sessionData.startTime) / 60000); // minutes
+    const actualDuration = Math.max(1, Math.round((endTime - sessionData.startTime) / 60000)); // minutes, minimum 1
     
     // Populate summary data
-    document.getElementById('summary-language').textContent = sessionData.language || 'N/A';
-    document.getElementById('summary-level').textContent = sessionData.level || 'N/A';
-    document.getElementById('summary-partner').textContent = sessionData.partner || 'N/A';
+    document.getElementById('summary-language').textContent = sessionData.language || 'English';
+    document.getElementById('summary-level').textContent = sessionData.level || 'Basic';
+    document.getElementById('summary-partner').textContent = sessionData.partner || 'Practice Partner';
     document.getElementById('summary-duration').textContent = `${actualDuration} minute${actualDuration !== 1 ? 's' : ''}`;
     document.getElementById('summary-date').textContent = new Date().toLocaleDateString('en-US', {
         year: 'numeric',
