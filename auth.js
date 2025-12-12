@@ -84,8 +84,8 @@ async function handleSignIn(e) {
     const result = await firebaseService.signIn(email, password);
 
     if (result.success) {
-        // Redirect to app
-        window.location.href = 'app.html';
+        // Redirect to profile page for logged-in users
+        window.location.href = 'profileold.html';
     } else {
         setLoading('signin', false);
         showError(result.error || 'Sign in failed. Please try again.');
@@ -125,9 +125,9 @@ async function handleSignUp(e) {
         // Show success
         showSuccess('Account created! Redirecting...', 'signup');
         
-        // Redirect to profile setup
+        // Redirect to profile setup for logged-in users
         setTimeout(() => {
-            window.location.href = 'profile.html';
+            window.location.href = 'profileold.html';
         }, 1500);
     } else {
         setLoading('signup', false);
@@ -140,8 +140,8 @@ async function handleGoogleSignIn() {
     const result = await firebaseService.signInWithGoogle();
 
     if (result.success) {
-        // Redirect to app
-        window.location.href = 'app.html';
+        // Redirect to profile page for logged-in users
+        window.location.href = 'profileold.html';
     } else {
         showError(result.error || 'Google sign in failed. Please try again.');
     }
