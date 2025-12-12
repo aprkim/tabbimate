@@ -9,6 +9,9 @@ const state = {
 // Guest mode toggle - set to true to test as a new user (non-logged-in)
 const GUEST_MODE = true;
 
+// Store selected interests for new users
+let selectedInterests = [];
+
 // User database - structured format for easy expansion
 const users = [
     {
@@ -426,8 +429,8 @@ function setupLevelButtons() {
             // Check if user is logged in
             const currentUser = GUEST_MODE ? null : users.find(u => u.name === 'April');
             if (!currentUser) {
-                // Show tutorial for non-logged-in users
-                showTutorial(level);
+                // Show interest selection for non-logged-in users
+                showInterestSelection(level);
             } else {
                 // Existing flow for logged-in users
                 selectLevel(level, duration);
@@ -2134,20 +2137,37 @@ function setupSessionSummary() {
     }
 }
 
-// Show tutorial video for non-logged-in users
-function showTutorial(level) {
-    const tutorialView = document.getElementById('tutorial-video');
+// Show interest selection for non-logged-in users
+function showInterestSelection(level) {
+    const interestView = document.getElementById('interest-selection');
     const levelsView = document.getElementById('session-levels');
-    const tutorialLevelSpan = document.getElementById('tutorial-level');
     
-    // Update tutorial level text
-    tutorialLevelSpan.textContent = level;
+    // Reset selected interests
+    selectedInterests = [];
+    updateInterestButton();
     
     // Transition views
     levelsView.classList.add('fade-out');
     setTimeout(() => {
         levelsView.classList.add('hidden');
         levelsView.classList.remove('fade-out');
+        interestView.classList.remove('hidden');
+        setTimeout(() => {
+            interestView.classList.add('fade-in');
+        }, 10);
+    }, 300);
+}
+
+// Show tutorial video after interest selection
+function showTutorial() {
+    const tutorialView = document.getElementById('tutorial-video');
+    const interestView = document.getElementById('interest-selection');
+    
+    // Transition views
+    interestView.classList.add('fade-out');
+    setTimeout(() => {
+        interestView.classList.add('hidden');
+        interestView.classList.remove('fade-out');
         tutorialView.classList.remove('hidden');
         setTimeout(() => {
             tutorialView.classList.add('fade-in');
@@ -2170,6 +2190,52 @@ function showJoinPrompt() {
             joinPromptView.classList.add('fade-in');
         }, 10);
     }, 300);
+}
+
+// Handle interest chip selection
+function setupInterestChips() {
+    const interestChips = document.querySelectorAll('.interest-chip');
+    
+    interestChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            const interest = chip.getAttribute('data-interest');
+            
+            if (chip.classList.contains('selected')) {
+                // Deselect
+                chip.classList.remove('selected');
+                selectedInterests = selectedInterests.filter(i => i !== interest);
+            } else {
+                // Select (max 3)
+                if (selectedInterests.length < 3) {
+                    chip.classList.add('selected');
+                    selectedInterests.push(interest);
+                }
+            }
+            
+            updateInterestButton();
+        });
+    });
+}
+
+// Update the continue button state
+function updateInterestButton() {
+    const continueBtn = document.getElementById('interests-continue-btn');
+    if (continueBtn) {
+        continueBtn.textContent = `Continue (${selectedInterests.length}/3)`;
+        continueBtn.disabled = selectedInterests.length !== 3;
+    }
+}
+
+// Setup interest selection continue button
+function setupInterestButton() {
+    const continueBtn = document.getElementById('interests-continue-btn');
+    if (continueBtn) {
+        continueBtn.addEventListener('click', () => {
+            if (selectedInterests.length === 3) {
+                showTutorial();
+            }
+        });
+    }
 }
 
 // Setup tutorial complete button
@@ -2214,12 +2280,16 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         init();
         setupSessionSummary();
+        setupInterestChips();
+        setupInterestButton();
         setupTutorialButton();
         setupSignOut();
     });
 } else {
     init();
     setupSessionSummary();
+    setupInterestChips();
+    setupInterestButton();
     setupTutorialButton();
     setupSignOut();
 }
