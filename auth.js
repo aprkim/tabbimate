@@ -84,8 +84,12 @@ async function handleSignIn(e) {
     const result = await firebaseService.signIn(email, password);
 
     if (result.success) {
+        console.log('Sign in successful, redirecting to profileold.html');
+        console.log('Current URL:', window.location.href);
         // Redirect to profile page for logged-in users
-        window.location.href = 'profileold.html';
+        const profileUrl = window.location.origin + '/tabbimate/profileold.html';
+        console.log('Redirecting to:', profileUrl);
+        window.location.href = profileUrl;
     } else {
         setLoading('signin', false);
         showError(result.error || 'Sign in failed. Please try again.');
@@ -127,7 +131,10 @@ async function handleSignUp(e) {
         
         // Redirect to profile setup for logged-in users
         setTimeout(() => {
-            window.location.href = 'profileold.html';
+            console.log('Sign up successful, redirecting to profileold.html');
+            const profileUrl = window.location.origin + '/tabbimate/profileold.html';
+            console.log('Redirecting to:', profileUrl);
+            window.location.href = profileUrl;
         }, 1500);
     } else {
         setLoading('signup', false);
@@ -140,8 +147,11 @@ async function handleGoogleSignIn() {
     const result = await firebaseService.signInWithGoogle();
 
     if (result.success) {
+        console.log('Google sign in successful, redirecting to profileold.html');
         // Redirect to profile page for logged-in users
-        window.location.href = 'profileold.html';
+        const profileUrl = window.location.origin + '/tabbimate/profileold.html';
+        console.log('Redirecting to:', profileUrl);
+        window.location.href = profileUrl;
     } else {
         showError(result.error || 'Google sign in failed. Please try again.');
     }
