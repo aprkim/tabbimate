@@ -147,29 +147,103 @@ function handleStartVideo() {
     window.location.href = `${basePath}/${sessionId}`;
 }
 
-// Setup map dots animation
+// User database - same as app.html
+const users = [
+    {
+        name: "April",
+        location: { top: "32%", left: "18%" },
+        languages: { english: "Professional", spanish: "Basic", korean: "Native" },
+        practiceLevel: "Professional",
+        interests: ["Parenting", "AI", "Cooking"]
+    },
+    {
+        name: "Marty",
+        location: { top: "40%", left: "22%" },
+        languages: { english: "Native", spanish: "Intermediate", korean: "Basic" },
+        practiceLevel: "Native",
+        interests: ["Music", "Running", "Tech"]
+    },
+    {
+        name: "Sofia",
+        location: { top: "65%", left: "30%" },
+        languages: { english: "Intermediate", spanish: "Native" },
+        practiceLevel: "Intermediate",
+        interests: ["Travel", "Photography"]
+    },
+    {
+        name: "Kenji",
+        location: { top: "38%", left: "82%" },
+        languages: { english: "Basic", japanese: "Native" },
+        practiceLevel: "Basic",
+        interests: ["Gaming", "Anime"]
+    },
+    {
+        name: "Hyejin",
+        location: { top: "42%", left: "76%" },
+        languages: { english: "Professional", korean: "Native" },
+        practiceLevel: "Professional",
+        interests: ["Baking", "Pilates"]
+    },
+    {
+        name: "Carlos",
+        location: { top: "50%", left: "26%" },
+        languages: { english: "Basic", spanish: "Native" },
+        practiceLevel: "Basic",
+        interests: ["Soccer", "Cooking"]
+    },
+    {
+        name: "Ravi",
+        location: { top: "47%", left: "70%" },
+        languages: { english: "Professional", hindi: "Native" },
+        practiceLevel: "Professional",
+        interests: ["Cricket", "Startups"]
+    },
+    {
+        name: "Maria",
+        location: { top: "60%", left: "85%" },
+        languages: { english: "Intermediate", tagalog: "Native" },
+        practiceLevel: "Intermediate",
+        interests: ["K-pop", "Cooking"]
+    }
+];
+
+// Setup map dots with hover tooltips
 function setupMapDots() {
     const dotsContainer = document.getElementById('dots-container');
     if (!dotsContainer) return;
 
-    const dotPositions = [
-        { top: "25%", left: "15%" },
-        { top: "35%", left: "25%" },
-        { top: "45%", left: "35%" },
-        { top: "30%", left: "45%" },
-        { top: "40%", left: "55%" },
-        { top: "28%", left: "65%" },
-        { top: "50%", left: "75%" },
-        { top: "38%", left: "82%" },
-        { top: "47%", left: "70%" },
-        { top: "60%", left: "85%" }
-    ];
-
-    dotPositions.forEach(pos => {
+    users.forEach(user => {
+        // Create dot
         const dot = document.createElement('div');
         dot.className = 'user-dot';
-        dot.style.top = pos.top;
-        dot.style.left = pos.left;
+        dot.style.top = user.location.top;
+        dot.style.left = user.location.left;
+        
+        // Create tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'user-tooltip';
+        
+        // Format languages
+        const languages = Object.entries(user.languages)
+            .map(([lang, level]) => `${lang.charAt(0).toUpperCase() + lang.slice(1)}: ${level}`)
+            .join('<br>');
+        
+        tooltip.innerHTML = `
+            <strong>${user.name}</strong><br>
+            ${languages}<br>
+            <span style="color: #A1A1A6;">${user.interests.join(', ')}</span>
+        `;
+        
+        // Add hover events
+        dot.addEventListener('mouseenter', () => {
+            tooltip.style.display = 'block';
+            dot.appendChild(tooltip);
+        });
+        
+        dot.addEventListener('mouseleave', () => {
+            tooltip.style.display = 'none';
+        });
+        
         dotsContainer.appendChild(dot);
     });
 }

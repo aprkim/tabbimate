@@ -17,9 +17,12 @@
 <body>
     <!-- Background Map Container -->
     <div class="map-container">
-        <div class="world-map">
-            <div id="dots-container"></div>
+        <div class="map-background">
+            <svg class="world-map-svg" viewBox="0 0 2000 1000" xmlns="http://www.w3.org/2000/svg">
+                <use href="map.svg#map-paths"></use>
+            </svg>
         </div>
+        <div id="dots-container"></div>
     </div>
 
     <!-- Main Profile Container -->
