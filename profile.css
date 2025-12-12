@@ -82,17 +82,28 @@ body {
     position: relative;
     z-index: 10;
     width: 100%;
-    max-width: 500px;
+    max-width: 480px;
     padding: 20px;
 }
 
-/* Profile Card */
+/* Profile Card - TabbiMate Style */
 .profile-card {
     background: white;
-    border-radius: 24px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    padding: 48px 40px;
+    border: 1px solid #E5E5E5;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     position: relative;
+}
+
+/* Card Drag Handle */
+.card-drag-handle {
+    width: 40px;
+    height: 4px;
+    background: #E5E5E5;
+    border-radius: 2px;
+    margin: 0 auto 24px;
+    cursor: grab;
 }
 
 /* Close Button */
@@ -123,7 +134,21 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 32px;
+    gap: 24px;
+}
+
+/* Profile Title */
+.profile-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1A1A1A;
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.tabbi-red {
+    color: #BF3143;
 }
 
 /* Profile Avatar */
@@ -156,8 +181,8 @@ body {
 }
 
 .profile-name {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 24px;
+    font-weight: 600;
     color: #1A1A1A;
     margin-bottom: 16px;
 }
@@ -165,7 +190,7 @@ body {
 .profile-details {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     align-items: center;
 }
 
@@ -175,6 +200,11 @@ body {
     gap: 8px;
     color: #666;
     font-size: 15px;
+}
+
+.detail-icon {
+    font-size: 18px;
+    flex-shrink: 0;
 }
 
 .detail-item svg {
@@ -188,13 +218,14 @@ body {
     flex-direction: column;
     gap: 12px;
     width: 100%;
+    margin-top: 8px;
 }
 
 .btn {
     width: 100%;
-    padding: 16px 24px;
+    padding: 14px 20px;
     border-radius: 12px;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     border: none;
     cursor: pointer;
@@ -203,19 +234,19 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .btn-primary {
     background: #BF3143;
     color: white;
-    box-shadow: 0 4px 16px rgba(191, 49, 67, 0.3);
+    box-shadow: 0 2px 8px rgba(191, 49, 67, 0.25);
 }
 
 .btn-primary:hover {
     background: #a52938;
-    box-shadow: 0 6px 24px rgba(191, 49, 67, 0.4);
-    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(191, 49, 67, 0.35);
+    transform: translateY(-1px);
 }
 
 .btn-primary svg {
@@ -224,18 +255,18 @@ body {
 
 .btn-secondary {
     background: white;
-    color: #1A1A1A;
-    border: 2px solid #E5E5E5;
+    color: #666;
+    border: 1px solid #E5E5E5;
 }
 
 .btn-secondary:hover {
     background: #F7F7F8;
-    border-color: #BF3143;
-    color: #BF3143;
+    border-color: #D1D1D6;
+    color: #1A1A1A;
 }
 
 .btn-secondary:hover svg {
-    stroke: #BF3143;
+    stroke: #1A1A1A;
 }
 
 /* Mobile Responsive */
@@ -245,11 +276,16 @@ body {
     }
 
     .profile-card {
-        padding: 40px 24px;
+        padding: 24px;
+        border-radius: 16px;
+    }
+
+    .profile-title {
+        font-size: 24px;
     }
 
     .profile-name {
-        font-size: 24px;
+        font-size: 20px;
     }
 
     .avatar-circle {
@@ -259,21 +295,29 @@ body {
     }
 
     .btn {
-        padding: 14px 20px;
-        font-size: 15px;
+        padding: 12px 18px;
+        font-size: 14px;
     }
 }
 
 @media (max-width: 480px) {
     .profile-card {
-        border-radius: 16px;
+        padding: 20px;
+    }
+
+    .profile-title {
+        font-size: 22px;
     }
 
     .profile-name {
-        font-size: 22px;
+        font-size: 18px;
     }
 
     .detail-item {
         font-size: 14px;
+    }
+
+    .detail-icon {
+        font-size: 16px;
     }
 }

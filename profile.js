@@ -99,32 +99,22 @@ function updateProfileDisplay() {
 // Setup event listeners
 function setupEventListeners() {
     const startVideoBtn = document.getElementById('start-video-btn');
-    const joinBtn = document.getElementById('join-btn');
     
     if (startVideoBtn) {
         startVideoBtn.addEventListener('click', handleStartVideo);
     }
-    
-    if (joinBtn) {
-        joinBtn.addEventListener('click', handleJoin);
-    }
 }
 
-// Handle start video button
+// Handle start video button - go to app session page
 function handleStartVideo() {
-    // Redirect to app with user profile data
+    // Save profile data
+    const storageKey = `tabbimate_profile_${profileData.userId}`;
+    localStorage.setItem(storageKey, JSON.stringify(profileData));
+    
+    // Redirect to app session page
     const basePath = window.location.pathname.includes('tabbimate') 
         ? '/tabbimate/app.html' 
         : '/app.html';
-    window.location.href = basePath;
-}
-
-// Handle join button
-function handleJoin() {
-    // Redirect to auth/signup page
-    const basePath = window.location.pathname.includes('tabbimate') 
-        ? '/tabbimate/auth.html' 
-        : '/auth.html';
     window.location.href = basePath;
 }
 
