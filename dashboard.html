@@ -1334,8 +1334,39 @@
             // Save current profile data before starting call
             saveProfileDataSync();
             
-            // Redirect to app.html
-            window.location.href = 'app.html';
+            // Get user's selected language and level from localStorage
+            const profileKey = `tabbimate_profile_${userId}`;
+            const savedProfile = localStorage.getItem(profileKey);
+            
+            let language = 'English';
+            let level = 'Basic';
+            
+            if (savedProfile) {
+                try {
+                    const profile = JSON.parse(savedProfile);
+                    // TODO: Get language and level from profile when we add those fields
+                    // For now using defaults
+                } catch (error) {
+                    console.error('Error parsing profile:', error);
+                }
+            }
+            
+            // Store current user data for the session
+            localStorage.setItem('tabbimate_current_user', JSON.stringify({
+                userId: userId,
+                language: language,
+                level: level,
+                interests: interests
+            }));
+            
+            // Generate a session ID
+            const sessionId = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+            
+            // Redirect to session page
+            const basePath = window.location.pathname.includes('tabbimate') 
+                ? '/tabbimate/session' 
+                : '/session';
+            window.location.href = `${window.location.origin}${basePath}/${sessionId}`;
         }
         
         // Save profile data synchronously (for navigation)
