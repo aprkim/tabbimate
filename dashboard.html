@@ -724,7 +724,7 @@
                 </div>
             </a>
             <div class="header-actions">
-                <button class="btn btn-primary" onclick="window.location.href='app.html'">
+                <button class="btn btn-primary" onclick="handleStartCall()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M23 7l-7 5 7 5V7z"/>
                         <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
@@ -866,7 +866,7 @@
                 <div class="card">
                     <h2 class="card-title">Quick Actions</h2>
                     <div class="action-list">
-                        <a href="app.html" class="action-item">
+                        <a href="#" class="action-item" onclick="event.preventDefault(); handleStartCall();">
                             <div class="action-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M23 7l-7 5 7 5V7z"/>
@@ -1327,6 +1327,33 @@
                 // Redirect to home page
                 window.location.href = 'index.html';
             }
+        }
+        
+        // Handle start call
+        function handleStartCall() {
+            // Make sure user data is available
+            if (!userId) {
+                alert('Please log in first');
+                window.location.href = 'auth.html';
+                return;
+            }
+            
+            // Get current profile data
+            const name = document.getElementById('name')?.value || 'User';
+            const location = document.getElementById('location')?.value || '';
+            
+            // Store minimal user data for the session
+            const currentUser = {
+                userId: userId,
+                name: name,
+                location: location,
+                email: userEmail
+            };
+            
+            localStorage.setItem('tabbimate_current_user', JSON.stringify(currentUser));
+            
+            // Navigate to app.html (language selection page)
+            window.location.href = 'app.html';
         }
         
         // Toggle favorite partner
