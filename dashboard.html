@@ -1396,32 +1396,6 @@
         }
         
         // Handle start call
-        function handleStartCall() {
-            // Make sure user data is available
-            if (!userId) {
-                alert('Please log in first');
-                window.location.href = 'auth.html';
-                return;
-            }
-            
-            // Get current profile data
-            const name = document.getElementById('name')?.value || 'User';
-            const location = document.getElementById('location')?.value || '';
-            
-            // Store minimal user data for the session
-            const currentUser = {
-                userId: userId,
-                name: name,
-                location: location,
-                email: userEmail
-            };
-            
-            localStorage.setItem('tabbimate_current_user', JSON.stringify(currentUser));
-            
-            // Navigate to app.html (language selection page)
-            window.location.href = 'app.html';
-        }
-        
         // Toggle favorite partner
         function toggleFavorite(partnerId, button) {
             const favoriteItem = button.closest('.favorite-item');
