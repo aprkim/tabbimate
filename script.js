@@ -1031,9 +1031,12 @@ function showMatchingScreen(language, level) {
     cancelBtn.onclick = () => {
         console.log('Matching cancelled by user');
         clearInterval(countdownInterval); // Clear the countdown
-        matchingScreen.classList.add('hidden');
-        document.querySelector('.map-container').style.display = 'block';
-        document.querySelector('.center-container').style.display = 'flex';
+        
+        // Redirect to index page
+        const basePath = window.location.pathname.includes('tabbimate') 
+            ? '/tabbimate/index.html' 
+            : '/index.html';
+        window.location.href = basePath;
     };
     
     console.log('Matching screen shown, waiting 1 minute...');
