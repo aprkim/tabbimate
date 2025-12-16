@@ -1029,12 +1029,14 @@ function showMatchingScreen(language, level) {
     const cancelBtn = document.getElementById('cancel-matching');
     cancelBtn.onclick = () => {
         console.log('Matching cancelled by user');
+        console.log('Current pathname:', window.location.pathname);
         clearInterval(countdownInterval); // Clear the countdown
         
         // Redirect to index page
         const basePath = window.location.pathname.includes('tabbimate') 
             ? '/tabbimate/index.html' 
-            : '/index.html';
+            : 'index.html';
+        console.log('Redirecting to:', basePath);
         window.location.href = basePath;
     };
     
