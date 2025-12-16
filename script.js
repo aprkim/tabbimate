@@ -296,10 +296,10 @@ function handleSignedInUserLanguages(user) {
             const matchedUser = availableUsers[Math.floor(Math.random() * availableUsers.length)];
             const levelDurations = {
                 'Basic': 10,
-                'Intermediate': 900,
-                'Advanced': 1800,
-                'Professional': 1800,
-                'Native': 1800
+                'Intermediate': 10,
+                'Advanced': 10,
+                'Professional': 10,
+                'Native': 10
             };
             const duration = levelDurations[lang.level] || 10;
             startActualVideoChat(matchedUser, duration);
@@ -351,10 +351,10 @@ function setupSignedInUserLanguageSelection(user) {
                 const matchedUser = availableUsers[Math.floor(Math.random() * availableUsers.length)];
                 const levelDurations = {
                     'Basic': 10,
-                    'Intermediate': 900,
-                    'Advanced': 1800,
-                    'Professional': 1800,
-                    'Native': 1800
+                    'Intermediate': 10,
+                    'Advanced': 10,
+                    'Professional': 10,
+                    'Native': 10
                 };
                 const duration = levelDurations[level] || 10;
                 startActualVideoChat(matchedUser, duration);
@@ -379,11 +379,11 @@ function startVideoSession(sessionId) {
         
         // Get duration based on level (in seconds for testing)
         const levelDurations = {
-            'Basic': 10,  // 10 seconds for testing (change to 3 for production = 3 minutes)
-            'Intermediate': 900,  // 15 minutes
-            'Advanced': 1800,  // 30 minutes
-            'Professional': 1800,  // 30 minutes
-            'Native': 1800  // 30 minutes
+            'Basic': 10,  // 10 seconds for testing
+            'Intermediate': 10,  // 10 seconds for testing
+            'Advanced': 10,  // 10 seconds for testing
+            'Professional': 10,  // 10 seconds for testing
+            'Native': 10  // 10 seconds for testing
         };
         
         if (user.level && levelDurations[user.level]) {
