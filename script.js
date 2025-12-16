@@ -1175,22 +1175,24 @@ function showMatchingScreen(language, level) {
         
         // Check if user is signed in
         const isSignedIn = (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
+        console.log('Is signed in?', isSignedIn);
         
         if (isSignedIn) {
             // Signed-in user - redirect to their dashboard
             const userId = firebase.auth().currentUser.uid;
-            const dashboardPath = window.location.pathname.includes('tabbimate')
-                ? `/tabbimate/dashboard/${userId}`
-                : `/dashboard/${userId}`;
-            console.log('Signed-in user, redirecting to dashboard:', dashboardPath);
-            window.location.href = dashboardPath;
+            console.log('User ID:', userId);
+            const dashboardUrl = window.location.pathname.includes('tabbimate')
+                ? `${window.location.origin}/tabbimate/dashboard/${userId}`
+                : `${window.location.origin}/dashboard/${userId}`;
+            console.log('Signed-in user, redirecting to dashboard:', dashboardUrl);
+            window.location.href = dashboardUrl;
         } else {
             // Guest user - redirect to index page
-            const basePath = window.location.pathname.includes('tabbimate') 
-                ? '/tabbimate/index.html' 
-                : 'index.html';
-            console.log('Guest user, redirecting to index:', basePath);
-            window.location.href = basePath;
+            const indexUrl = window.location.pathname.includes('tabbimate') 
+                ? `${window.location.origin}/tabbimate/index.html`
+                : `${window.location.origin}/index.html`;
+            console.log('Guest user, redirecting to index:', indexUrl);
+            window.location.href = indexUrl;
         }
     };
     
