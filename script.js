@@ -1173,12 +1173,25 @@ function showMatchingScreen(language, level) {
         console.log('Current pathname:', window.location.pathname);
         clearInterval(countdownInterval); // Clear the countdown
         
-        // Redirect to index page
-        const basePath = window.location.pathname.includes('tabbimate') 
-            ? '/tabbimate/index.html' 
-            : 'index.html';
-        console.log('Redirecting to:', basePath);
-        window.location.href = basePath;
+        // Check if user is signed in
+        const isSignedIn = (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
+        
+        if (isSignedIn) {
+            // Signed-in user - redirect to their dashboard
+            const userId = firebase.auth().currentUser.uid;
+            const dashboardPath = window.location.pathname.includes('tabbimate')
+                ? `/tabbimate/dashboard/${userId}`
+                : `/dashboard/${userId}`;
+            console.log('Signed-in user, redirecting to dashboard:', dashboardPath);
+            window.location.href = dashboardPath;
+        } else {
+            // Guest user - redirect to index page
+            const basePath = window.location.pathname.includes('tabbimate') 
+                ? '/tabbimate/index.html' 
+                : 'index.html';
+            console.log('Guest user, redirecting to index:', basePath);
+            window.location.href = basePath;
+        }
     };
     
     console.log('Matching screen shown, waiting 1 minute...');
