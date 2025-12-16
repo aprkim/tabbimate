@@ -1056,27 +1056,34 @@ body {
     position: relative;
 }
 
+/* Video name container with mute indicator */
+.video-name-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+
 /* Mute indicator */
 .mute-indicator {
-    position: absolute;
-    top: 16px;
-    left: 16px;
     background: rgba(0, 0, 0, 0.75);
     color: white;
-    padding: 8px;
+    padding: 6px;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10;
+    flex-shrink: 0;
     animation: fadeIn 0.2s ease-out;
 }
 
 .mute-indicator svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
 }
 
 @keyframes fadeIn {
@@ -1094,9 +1101,6 @@ body {
     font-size: 16px;
     font-weight: 500;
     color: #333;
-    background: white;
-    padding: 8px 16px;
-    border-radius: 8px;
     text-decoration: underline;
 }
 
