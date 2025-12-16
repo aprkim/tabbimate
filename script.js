@@ -303,7 +303,7 @@ function handleSignedInUserLanguages(user) {
             };
             const duration = levelDurations[lang.level] || 10;
             startActualVideoChat(matchedUser, duration);
-        }, 60000); // 60 seconds matching time
+        }, 10000); // 10 seconds matching time (testing)
     } else {
         // Multiple languages - show language selection but only with user's languages
         console.log('User has multiple languages, showing selection');
@@ -358,7 +358,7 @@ function setupSignedInUserLanguageSelection(user) {
                 };
                 const duration = levelDurations[level] || 10;
                 startActualVideoChat(matchedUser, duration);
-            }, 60000); // 60 seconds matching time
+            }, 10000); // 10 seconds matching time (testing)
         });
     });
 }
@@ -482,7 +482,7 @@ function startVideoSession(sessionId) {
         startCallTimer(duration); // Start timer with duration in seconds
         
         console.log('=== Video session initialization complete ===');
-    }, 60000); // 60 seconds = 1 minute
+    }, 10000); // 10 seconds matching time (testing)
 }
 
 // Setup video controls
@@ -723,7 +723,7 @@ function setupLevelButtons() {
                     const availableUsers = users.filter(u => u.name !== 'Guest');
                     const matchedUser = availableUsers[Math.floor(Math.random() * availableUsers.length)];
                     startActualVideoChat(matchedUser, duration);
-                }, 60000); // 60 seconds matching time
+                }, 10000); // 10 seconds matching time (testing)
             }
         });
     });
@@ -1136,8 +1136,8 @@ function showMatchingScreen(language, level) {
     document.getElementById('matching-language').textContent = language;
     document.getElementById('matching-level').textContent = level;
     
-    // Start countdown timer from 59 seconds
-    let timeRemaining = 59;
+    // Start countdown timer from 9 seconds (testing)
+    let timeRemaining = 9;
     const timerElement = document.getElementById('matching-timer');
     
     console.log('Timer element found:', timerElement);
@@ -1206,11 +1206,11 @@ function startVideoChat(matchedUser, durationSeconds) {
     // First show matching screen
     showMatchingScreen(state.selectedLanguage, getLevelName(durationSeconds));
     
-    // Wait 1 minute (60 seconds) then start the actual video chat
+    // Wait 10 seconds then start the actual video chat
     setTimeout(() => {
         console.log('Match found! Starting video chat...');
         startActualVideoChat(matchedUser, durationSeconds);
-    }, 60000); // 60 seconds = 1 minute
+    }, 10000); // 10 seconds matching time (testing)
 }
 
 // Actually start the video chat (called after matching)
