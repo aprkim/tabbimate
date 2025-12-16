@@ -999,12 +999,21 @@ function showMatchingScreen(language, level) {
     let timeRemaining = 59;
     const timerElement = document.getElementById('matching-timer');
     
+    console.log('Timer element found:', timerElement);
+    
+    if (!timerElement) {
+        console.error('Timer element not found!');
+        return;
+    }
+    
     // Update timer display immediately
     timerElement.textContent = `00:${String(timeRemaining).padStart(2, '0')}`;
+    console.log('Initial timer set to:', timerElement.textContent);
     
     // Setup countdown interval
     const countdownInterval = setInterval(() => {
         timeRemaining--;
+        console.log('Timer countdown:', timeRemaining);
         
         if (timeRemaining >= 0) {
             timerElement.textContent = `00:${String(timeRemaining).padStart(2, '0')}`;
@@ -1012,6 +1021,7 @@ function showMatchingScreen(language, level) {
         
         if (timeRemaining <= 0) {
             clearInterval(countdownInterval);
+            console.log('Timer countdown complete');
         }
     }, 1000);
     
