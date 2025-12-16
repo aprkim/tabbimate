@@ -776,7 +776,16 @@ body {
 .matching-subtitle {
     font-size: 16px;
     color: #666;
+    margin-bottom: 24px;
+}
+
+.matching-timer {
+    font-size: 48px;
+    font-weight: 700;
+    color: #E63946;
     margin-bottom: 32px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
 }
 
 .matching-info {

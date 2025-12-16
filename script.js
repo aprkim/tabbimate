@@ -1006,10 +1006,31 @@ function showMatchingScreen(language, level) {
     document.getElementById('matching-language').textContent = language;
     document.getElementById('matching-level').textContent = level;
     
+    // Start countdown timer from 59 seconds
+    let timeRemaining = 59;
+    const timerElement = document.getElementById('matching-timer');
+    
+    // Update timer display immediately
+    timerElement.textContent = `00:${String(timeRemaining).padStart(2, '0')}`;
+    
+    // Setup countdown interval
+    const countdownInterval = setInterval(() => {
+        timeRemaining--;
+        
+        if (timeRemaining >= 0) {
+            timerElement.textContent = `00:${String(timeRemaining).padStart(2, '0')}`;
+        }
+        
+        if (timeRemaining <= 0) {
+            clearInterval(countdownInterval);
+        }
+    }, 1000);
+    
     // Setup cancel button
     const cancelBtn = document.getElementById('cancel-matching');
     cancelBtn.onclick = () => {
         console.log('Matching cancelled by user');
+        clearInterval(countdownInterval); // Clear the countdown
         matchingScreen.classList.add('hidden');
         document.querySelector('.map-container').style.display = 'block';
         document.querySelector('.center-container').style.display = 'flex';
