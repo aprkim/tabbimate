@@ -712,6 +712,135 @@
                 grid-template-columns: 1fr;
             }
         }
+        
+        /* Crop Modal Styles */
+        .crop-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .crop-modal.hidden {
+            display: none;
+        }
+        
+        .crop-modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .crop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .crop-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .crop-close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+        
+        .crop-close-btn:hover {
+            color: #1f2937;
+        }
+        
+        .crop-container {
+            padding: 20px;
+            flex: 1;
+            overflow: auto;
+        }
+        
+        .crop-area {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            user-select: none;
+        }
+        
+        #crop-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .crop-box {
+            position: absolute;
+            border: 2px solid #E63946;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+            cursor: move;
+        }
+        
+        .crop-handle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 2px solid #E63946;
+            border-radius: 50%;
+        }
+        
+        .crop-handle.nw {
+            top: -6px;
+            left: -6px;
+            cursor: nw-resize;
+        }
+        
+        .crop-handle.ne {
+            top: -6px;
+            right: -6px;
+            cursor: ne-resize;
+        }
+        
+        .crop-handle.sw {
+            bottom: -6px;
+            left: -6px;
+            cursor: sw-resize;
+        }
+        
+        .crop-handle.se {
+            bottom: -6px;
+            right: -6px;
+            cursor: se-resize;
+        }
+        
+        .crop-actions {
+            display: flex;
+            gap: 12px;
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+            justify-content: flex-end;
+        }
     </style>
 </head>
 <body>
@@ -1214,26 +1343,201 @@
             console.log('Stats updated:', stats);
         }
         
-        // Photo preview
+        // Photo preview and crop functionality
         const photoUpload = document.getElementById('photo-upload');
         const profilePreview = document.getElementById('profile-preview');
         const defaultAvatar = document.getElementById('default-avatar');
+        let currentImageFile = null;
+        let cropState = {
+            isDragging: false,
+            isResizing: false,
+            resizeHandle: null,
+            startX: 0,
+            startY: 0,
+            cropBox: { x: 0, y: 0, width: 200, height: 200 }
+        };
         
         photoUpload.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
+                currentImageFile = file;
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    profilePreview.src = event.target.result;
-                    profilePreview.style.display = 'block';
-                    defaultAvatar.style.display = 'none';
-                    
-                    // Save photo to profile
-                    saveProfileData();
+                    // Show crop modal
+                    showCropModal(event.target.result);
                 };
                 reader.readAsDataURL(file);
             }
         });
+        
+        // Crop modal functions
+        function showCropModal(imageSrc) {
+            const cropModal = document.getElementById('crop-modal');
+            const cropImage = document.getElementById('crop-image');
+            const cropBox = document.getElementById('crop-box');
+            
+            cropImage.src = imageSrc;
+            cropModal.classList.remove('hidden');
+            
+            // Initialize crop box after image loads
+            cropImage.onload = function() {
+                const imageRect = cropImage.getBoundingClientRect();
+                const size = Math.min(imageRect.width, imageRect.height) * 0.7;
+                const x = (imageRect.width - size) / 2;
+                const y = (imageRect.height - size) / 2;
+                
+                cropState.cropBox = { x, y, width: size, height: size };
+                updateCropBox();
+                initializeCropInteractions();
+            };
+        }
+        
+        function closeCropModal() {
+            const cropModal = document.getElementById('crop-modal');
+            cropModal.classList.add('hidden');
+            photoUpload.value = ''; // Reset file input
+        }
+        
+        function updateCropBox() {
+            const cropBox = document.getElementById('crop-box');
+            cropBox.style.left = cropState.cropBox.x + 'px';
+            cropBox.style.top = cropState.cropBox.y + 'px';
+            cropBox.style.width = cropState.cropBox.width + 'px';
+            cropBox.style.height = cropState.cropBox.height + 'px';
+        }
+        
+        function initializeCropInteractions() {
+            const cropBox = document.getElementById('crop-box');
+            const cropImage = document.getElementById('crop-image');
+            const handles = document.querySelectorAll('.crop-handle');
+            
+            // Drag crop box
+            cropBox.addEventListener('mousedown', function(e) {
+                if (e.target.classList.contains('crop-handle')) return;
+                cropState.isDragging = true;
+                cropState.startX = e.clientX - cropState.cropBox.x;
+                cropState.startY = e.clientY - cropState.cropBox.y;
+                e.preventDefault();
+            });
+            
+            // Resize with handles
+            handles.forEach(handle => {
+                handle.addEventListener('mousedown', function(e) {
+                    cropState.isResizing = true;
+                    cropState.resizeHandle = handle.classList[1]; // nw, ne, sw, se
+                    cropState.startX = e.clientX;
+                    cropState.startY = e.clientY;
+                    e.stopPropagation();
+                    e.preventDefault();
+                });
+            });
+            
+            // Mouse move handler
+            document.addEventListener('mousemove', function(e) {
+                const imageRect = cropImage.getBoundingClientRect();
+                
+                if (cropState.isDragging) {
+                    let newX = e.clientX - cropState.startX;
+                    let newY = e.clientY - cropState.startY;
+                    
+                    // Constrain to image bounds
+                    newX = Math.max(0, Math.min(newX, imageRect.width - cropState.cropBox.width));
+                    newY = Math.max(0, Math.min(newY, imageRect.height - cropState.cropBox.height));
+                    
+                    cropState.cropBox.x = newX;
+                    cropState.cropBox.y = newY;
+                    updateCropBox();
+                }
+                
+                if (cropState.isResizing) {
+                    const deltaX = e.clientX - cropState.startX;
+                    const deltaY = e.clientY - cropState.startY;
+                    const handle = cropState.resizeHandle;
+                    
+                    let newX = cropState.cropBox.x;
+                    let newY = cropState.cropBox.y;
+                    let newWidth = cropState.cropBox.width;
+                    let newHeight = cropState.cropBox.height;
+                    
+                    // Calculate new dimensions based on handle
+                    if (handle.includes('n')) {
+                        newY += deltaY;
+                        newHeight -= deltaY;
+                    }
+                    if (handle.includes('s')) {
+                        newHeight += deltaY;
+                    }
+                    if (handle.includes('w')) {
+                        newX += deltaX;
+                        newWidth -= deltaX;
+                    }
+                    if (handle.includes('e')) {
+                        newWidth += deltaX;
+                    }
+                    
+                    // Enforce minimum size and bounds
+                    const minSize = 50;
+                    if (newWidth >= minSize && newHeight >= minSize &&
+                        newX >= 0 && newY >= 0 &&
+                        newX + newWidth <= imageRect.width &&
+                        newY + newHeight <= imageRect.height) {
+                        
+                        cropState.cropBox = { x: newX, y: newY, width: newWidth, height: newHeight };
+                        cropState.startX = e.clientX;
+                        cropState.startY = e.clientY;
+                        updateCropBox();
+                    }
+                }
+            });
+            
+            // Mouse up handler
+            document.addEventListener('mouseup', function() {
+                cropState.isDragging = false;
+                cropState.isResizing = false;
+            });
+        }
+        
+        function applyCrop() {
+            const cropImage = document.getElementById('crop-image');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Get the natural image dimensions
+            const img = new Image();
+            img.onload = function() {
+                const imageRect = cropImage.getBoundingClientRect();
+                const scaleX = img.naturalWidth / imageRect.width;
+                const scaleY = img.naturalHeight / imageRect.height;
+                
+                // Calculate crop area in original image coordinates
+                const cropX = cropState.cropBox.x * scaleX;
+                const cropY = cropState.cropBox.y * scaleY;
+                const cropWidth = cropState.cropBox.width * scaleX;
+                const cropHeight = cropState.cropBox.height * scaleY;
+                
+                // Set canvas size to crop size
+                canvas.width = cropWidth;
+                canvas.height = cropHeight;
+                
+                // Draw cropped image
+                ctx.drawImage(img, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+                
+                // Convert to data URL and update profile preview
+                const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                profilePreview.src = croppedDataUrl;
+                profilePreview.style.display = 'block';
+                defaultAvatar.style.display = 'none';
+                
+                // Close modal
+                closeCropModal();
+                
+                // Mark as changed and save
+                hasUnsavedChanges = true;
+                updateSaveButton();
+                saveProfileData();
+            };
+            img.src = cropImage.src;
+        }
         
         // Auto-save profile data when inputs change
         function setupAutoSave() {
@@ -1545,6 +1849,31 @@
             init();
         }
     </script>
+    
+    <!-- Photo Crop Modal -->
+    <div id="crop-modal" class="crop-modal hidden">
+        <div class="crop-modal-content">
+            <div class="crop-header">
+                <h3>Crop Your Photo</h3>
+                <button class="crop-close-btn" onclick="closeCropModal()">&times;</button>
+            </div>
+            <div class="crop-container">
+                <div class="crop-area">
+                    <img id="crop-image" src="" alt="Image to crop">
+                    <div class="crop-box" id="crop-box">
+                        <div class="crop-handle nw"></div>
+                        <div class="crop-handle ne"></div>
+                        <div class="crop-handle sw"></div>
+                        <div class="crop-handle se"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="crop-actions">
+                <button class="btn btn-secondary" onclick="closeCropModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="applyCrop()">Apply Crop</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 
