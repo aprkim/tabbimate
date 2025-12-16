@@ -1271,8 +1271,10 @@ function startActualVideoChat(matchedUser, durationSeconds) {
     document.querySelector('.center-container').style.display = 'none';
     document.getElementById('video-chat').classList.remove('hidden');
     
-    // Setup end call button and timer
-    setupVideoCallControls();
+    // Setup all video controls (buttons, chat, etc.)
+    setupVideoControls();
+    
+    // Start the call timer
     startCallTimer(durationSeconds);
     
     console.log('=== Video chat started successfully ===');
