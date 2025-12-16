@@ -675,14 +675,55 @@ function setupLevelButtons() {
             const duration = parseInt(btn.getAttribute('data-duration'));
             console.log('Level button clicked:', level, 'Duration:', duration);
             
-            // Check if user is logged in
-            const currentUser = GUEST_MODE ? null : users.find(u => u.name === 'April');
-            if (!currentUser) {
-                // Show interest selection for non-logged-in users
+            // Check if user is signed in via Firebase
+            const isSignedIn = (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
+            
+            if (!isSignedIn) {
+                // Guest user - show interest selection
+                console.log('Guest user: showing interest selection');
                 showInterestSelection(level);
             } else {
-                // Existing flow for logged-in users
-                selectLevel(level, duration);
+                // Signed-in user - skip interest selection, go straight to matching
+                console.log('Signed-in user: skipping interest selection, going to matching');
+                state.selectedLevel = level;
+                
+                // Get user's interests from localStorage profile
+                const userId = firebase.auth().currentUser.uid;
+                const profileKey = `tabbimate_profile_${userId}`;
+                const savedProfile = localStorage.getItem(profileKey);
+                let userInterests = [];
+                
+                if (savedProfile) {
+                    try {
+                        const profile = JSON.parse(savedProfile);
+                        if (profile.interests && Array.isArray(profile.interests)) {
+                            userInterests = profile.interests;
+                        }
+                    } catch (error) {
+                        console.error('Error parsing profile for interests:', error);
+                    }
+                }
+                
+                // Store user data for the session
+                localStorage.setItem('tabbimate_current_user', JSON.stringify({
+                    userId: userId,
+                    language: state.selectedLanguage,
+                    level: level,
+                    interests: userInterests
+                }));
+                
+                // Hide the language/level selection card
+                document.querySelector('.center-container').style.display = 'none';
+                
+                // Show matching screen
+                showMatchingScreen(state.selectedLanguage, level);
+                
+                // Find a match and start video chat after matching period
+                setTimeout(() => {
+                    const availableUsers = users.filter(u => u.name !== 'Guest');
+                    const matchedUser = availableUsers[Math.floor(Math.random() * availableUsers.length)];
+                    startActualVideoChat(matchedUser, duration);
+                }, 60000); // 60 seconds matching time
             }
         });
     });
