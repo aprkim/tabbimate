@@ -1423,7 +1423,20 @@ function setupToggleButtons() {
         micBtn.addEventListener('click', function() {
             const isActive = this.dataset.active === 'true';
             this.dataset.active = !isActive;
-            console.log('Audio:', !isActive ? 'ON' : 'OFF');
+            
+            // Toggle mute indicator for local user
+            const localMuteIndicator = document.getElementById('local-mute-indicator');
+            if (localMuteIndicator) {
+                if (isActive) {
+                    // Was active, now muted
+                    localMuteIndicator.classList.remove('hidden');
+                    console.log('Audio: OFF (Muted)');
+                } else {
+                    // Was muted, now active
+                    localMuteIndicator.classList.add('hidden');
+                    console.log('Audio: ON (Unmuted)');
+                }
+            }
         });
         micBtn.dataset.listenerAttached = 'true';
     }
